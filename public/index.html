@@ -103,7 +103,6 @@
                 const data = await response.json();
                 populateResults(data);
                 createCharts(data.weeklyPoints, data.weeklyRanks);
-                
 
                 chartsDiv.classList.remove('hidden');
             } catch (error) {
