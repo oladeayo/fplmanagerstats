@@ -86,29 +86,6 @@
             </div>
         </div>
 
-        <!-- Last 5 Gameweek Performance Card -->
-        <div id="last5GWPerformance" class="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-6 hidden">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Last 5 Gameweek Performance</h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white border rounded-lg">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="sticky-column px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Player Name</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GW-4</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GW-3</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GW-2</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GW-1</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current GW</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="last5GWBody">
-                        <!-- Will be populated by JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
         <!-- Share Button -->
         <div class="flex justify-center mt-8">
             <button onclick="shareApp()" 
@@ -137,7 +114,6 @@
             const resultsDiv = document.getElementById('results');
             const chartsDiv = document.getElementById('charts');
             const currentTeamFixtures = document.getElementById('currentTeamFixtures');
-            const last5GWPerformance = document.getElementById('last5GWPerformance');
 
             // Display loading spinner
             resultsDiv.innerHTML = `
@@ -147,7 +123,6 @@
             `;
             chartsDiv.classList.add('hidden');
             currentTeamFixtures.classList.add('hidden');
-            last5GWPerformance.classList.add('hidden');
 
             try {
                 const response = await fetch(`/api/analyze-manager/${managerId}`);
@@ -157,11 +132,9 @@
                 populateResults(data);
                 createCharts(data.weeklyPoints, data.weeklyRanks);
                 populateFixtures(data.currentTeam);
-                populateLast5GW(data.playerStats);
 
                 chartsDiv.classList.remove('hidden');
                 currentTeamFixtures.classList.remove('hidden');
-                last5GWPerformance.classList.remove('hidden');
             } catch (error) {
                 resultsDiv.innerHTML = `
                     <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
@@ -173,7 +146,6 @@
                 `;
                 chartsDiv.classList.add('hidden');
                 currentTeamFixtures.classList.add('hidden');
-                last5GWPerformance.classList.add('hidden');
             }
         }
 
@@ -202,32 +174,6 @@
                     `).join('')}
                 </tr>
             `).join('');
-        }
-
-        function populateLast5GW(playerStats) {
-            const last5GWBody = document.getElementById('last5GWBody');
-            
-            // Sort players by total points in last 5 GWs
-            const sortedPlayers = [...playerStats].sort((a, b) => {
-                const aTotal = a.last5Points ? a.last5Points.reduce((sum, pts) => sum + pts, 0) : 0;
-                const bTotal = b.last5Points ? b.last5Points.reduce((sum, pts) => sum + pts, 0) : 0;
-                return bTotal - aTotal;
-            });
-
-            last5GWBody.innerHTML = sortedPlayers.map(player => {
-                const last5Points = player.last5Points || new Array(5).fill(0);
-                const total = last5Points.reduce((sum, pts) => sum + pts, 0);
-                
-                return `
-                    <tr class="hover:bg-gray-100">
-                        <td class="sticky-column px-6 py-4 text-sm font-medium text-gray-900 bg-white">${player.name}</td>
-                        ${last5Points.map(pts => 
-                            `<td class="px-6 py-4 text-sm text-gray-500">${pts}</td>`
-                        ).join('')}
-                        <td class="px-6 py-4 text-sm font-medium text-gray-900">${total}</td>
-                    </tr>
-                `;
-            }).join('');
         }
 
         function populateResults(data) {
@@ -318,6 +264,42 @@
                           </table>
                       </div>
                   </div>
+            `;
+
+            // Position Summary Card
+            const positionSummary = {
+                GKP: 0,
+                DEF: 0,
+                MID: 0,
+                FWD: 0
+            };
+
+            sortedPlayers.forEach(player => {
+                positionSummary[player.position] += player.totalPointsActive;
+            });
+
+            html += `
+                <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Position Summary</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="p-4 bg-gray-50 rounded-lg">
+                            <p class="text-lg font-semibold text-gray-800">GKP</p>
+                            <p class="text-2xl font-bold text-blue-600">${positionSummary.GKP} pts</p>
+                        </div>
+                        <div class="p-4 bg-gray-50 rounded-lg">
+                            <p class="text-lg font-semibold text-gray-800">DEF</p>
+                            <p class="text-2xl font-bold text-blue-600">${positionSummary.DEF} pts</p>
+                        </div>
+                        <div class="p-4 bg-gray-50 rounded-lg">
+                            <p class="text-lg font-semibold text-gray-800">MID</p>
+                            <p class="text-2xl font-bold text-blue-600">${positionSummary.MID} pts</p>
+                        </div>
+                        <div class="p-4 bg-gray-50 rounded-lg">
+                            <p class="text-lg font-semibold text-gray-800">FWD</p>
+                            <p class="text-2xl font-bold text-blue-600">${positionSummary.FWD} pts</p>
+                        </div>
+                    </div>
+                </div>
             `;
 
             resultsDiv.innerHTML = html;
