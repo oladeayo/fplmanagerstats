@@ -213,8 +213,8 @@
             const processedData = last5Data.map(player => ({
                 ...player,
                 isGreyedOut: player.weeksInSquad < 3,
-                pointsInTeam: player.pointsInTeam || 0, // Ensure pointsInTeam exists
-                name: player.name || 'Unknown Player' // Ensure name exists
+                pointsInTeam: player.pointsInTeam || 0,
+                name: player.name || 'Unknown Player'
             }));
 
             // Sort by points in descending order
@@ -252,15 +252,28 @@
                     scales: {
                         x: {
                             beginAtZero: true,
+                            grid: {
+                                display: true
+                            },
                             title: {
                                 display: true,
                                 text: 'Points'
                             }
                         },
                         y: {
+                            grid: {
+                                display: false
+                            },
                             ticks: {
-                                autoSkip: false
+                                autoSkip: false,
+                                padding: 10
                             }
+                        }
+                    },
+                    layout: {
+                        padding: {
+                            left: 10,
+                            right: 10
                         }
                     }
                 }
