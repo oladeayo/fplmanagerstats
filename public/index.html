@@ -12,6 +12,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        canvas { width: 100% !important; height: auto !important; }
+    </style>
     <link rel="icon" href="football.ico" type="image/x-icon">
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -89,6 +94,51 @@
             </p>
         </div>
     </div>
+
+    <div>
+        <canvas id="myChart"></canvas>
+        <p id="note" style="color: gray;"></p>
+    </div>
+    <script>
+        document.getElementById('submit').addEventListener('click', async () => {
+            const managerId = document.getElementById('managerId').value;
+            const response = await fetch(`http://localhost:3000/api/analyze-manager/${managerId}`);
+            const data = await response.json();
+
+            const playerNames = data.playerStats.map(player => player.name);
+            const playerPoints = data.playerStats.map(player => player.totalPointsActive);
+            const playerGWs = data.playerStats.map(player => player.gwInSquad);
+            const barColors = playerGWs.map(gw => gw < 3 ? 'gray' : 'blue');
+            
+            // Clear previous chart if exists
+            if (window.myChart) {
+                window.myChart.destroy();
+            }
+
+            const ctx = document.getElementById('myChart').getContext('2d');
+            window.myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: playerNames,
+                    datasets: [{
+                        label: 'Total Points (last 5 GWs)',
+                        data: playerPoints,
+                        backgroundColor: barColors,
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                        }
+                    }
+                }
+            });
+
+            // Update note about players with less than 3 GWs
+            document.getElementById('note').innerText = 'Gray bars represent players with less than 3 GWs.';
+        });
+    </script>
 
     <script>
         let pointsChart = null;
