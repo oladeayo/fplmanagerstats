@@ -104,28 +104,29 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
     const last5GWsData = [];
     const last5GWs = Array.from({length: 5}, (_, i) => currentGameweek - i).filter(gw => gw > 0);
     
-    for (const playerId of managerPicks.map(pick => pick.element)) {
-      const player = playerData.elements.find(p => p.id === playerId);
+    // Get player history for last 5 GWs
+    for (const pick of managerPicks) {
+      const player = playerData.elements.find(p => p.id === pick.element);
       if (!player) continue;
+
+      const historyResponse = await axios.get(`https://fantasy.premierleague.com/api/element-summary/${player.id}/`);
+      const playerHistory = historyResponse.data.history;
 
       let points = 0;
       let appearances = 0;
 
       for (const gw of last5GWs) {
-        const historyResponse = await axios.get(`https://fantasy.premierleague.com/api/element-summary/${playerId}/`);
-        const gwHistory = historyResponse.data.history.find(h => h.round === gw);
+        const gwHistory = playerHistory.find(h => h.round === gw);
         if (gwHistory) {
           points += gwHistory.total_points;
           appearances++;
         }
       }
 
-      const isGreyedOut = appearances === 0;
-      
       last5GWsData.push({
         name: player.web_name,
         points,
-        isGreyedOut
+        isGreyedOut: appearances === 0
       });
     }
 
@@ -251,7 +252,7 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
       weeklyPoints,
       weeklyRanks,
       currentTeam,
-      last5GWsData
+      last5GWsData: last5GWsData.sort((a, b) => b.points - a.points)
     };
 
     res.json(analysis);
