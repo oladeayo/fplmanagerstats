@@ -42,7 +42,6 @@
         <!-- Results Section -->
         <div id="results" class="max-w-4xl mx-auto space-y-6"></div>
 
-
         <!-- Charts Section -->
         <div id="charts" class="max-w-4xl mx-auto mt-8 space-y-6 hidden">
             <!-- Points Chart -->
@@ -59,35 +58,6 @@
                 <div class="relative h-[300px] md:h-[400px]">
                     <canvas id="rankChart"></canvas>
                 </div>
-            </div>
-        </div>
-
-         <!-- Current Team & Fixtures Card -->
-         <div id="currentTeamFixtures" class="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-6 hidden">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Current Team & Upcoming Fixtures</h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full">
-                    <thead>
-                        <tr>
-                            <th class="px-4 py-2 text-left">Player</th>
-                            <th class="px-4 py-2 text-center" colspan="5">Next 5 Fixtures</th>
-                        </tr>
-                    </thead>
-                    <tbody id="fixturesBody">
-                        <!-- Populated by JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Last 5 GWs Performance Card -->
-        <div id="last5Performance" class="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-6 hidden">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Last 5 Gameweeks Performance</h2>
-            <div class="relative h-[400px]">
-                <canvas id="last5Chart"></canvas>
-            </div>
-            <div id="greyedOutPlayers" class="mt-4 text-sm text-gray-600">
-                <!-- Populated by JavaScript -->
             </div>
         </div>
 
@@ -112,14 +82,11 @@
     <script>
         let pointsChart = null;
         let rankChart = null;
-        let last5Chart = null;
 
         async function analyzeManager() {
             const managerId = document.getElementById('managerId').value;
             const resultsDiv = document.getElementById('results');
             const chartsDiv = document.getElementById('charts');
-            const currentTeamFixtures = document.getElementById('currentTeamFixtures');
-            const last5Performance = document.getElementById('last5Performance');
 
             // Display loading spinner
             resultsDiv.innerHTML = `
@@ -128,8 +95,6 @@
                 </div>
             `;
             chartsDiv.classList.add('hidden');
-            currentTeamFixtures.classList.add('hidden');
-            last5Performance.classList.add('hidden');
 
             try {
                 const response = await fetch(`/api/analyze-manager/${managerId}`);
@@ -138,12 +103,8 @@
                 const data = await response.json();
                 populateResults(data);
                 createCharts(data.weeklyPoints, data.weeklyRanks);
-                populateFixtures(data.currentTeam);
-                createLast5Chart(data.last5GWsData);
 
                 chartsDiv.classList.remove('hidden');
-                currentTeamFixtures.classList.remove('hidden');
-                last5Performance.classList.remove('hidden');
             } catch (error) {
                 resultsDiv.innerHTML = `
                     <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
@@ -154,83 +115,7 @@
                     </div>
                 `;
                 chartsDiv.classList.add('hidden');
-                currentTeamFixtures.classList.add('hidden');
-                last5Performance.classList.add('hidden');
             }
-        }
-
-        function getFDRColor(difficulty) {
-            const colors = {
-                1: 'bg-green-500',
-                2: 'bg-green-300',
-                3: 'bg-gray-300',
-                4: 'bg-red-300',
-                5: 'bg-red-500'
-            };
-            return colors[difficulty] || 'bg-gray-300';
-        }
-
-        function populateFixtures(teamData) {
-            const fixturesBody = document.getElementById('fixturesBody');
-            fixturesBody.innerHTML = teamData.map(player => `
-                <tr class="border-t">
-                    <td class="px-4 py-2">${player.name}</td>
-                    ${player.nextFixtures.map(fixture => `
-                        <td class="px-2 py-2">
-                            <div class="${getFDRColor(fixture.difficulty)} text-xs rounded p-1 text-center text-white">
-                                ${fixture.opponent} (${fixture.isHome ? 'H' : 'A'})
-                            </div>
-                        </td>
-                    `).join('')}
-                </tr>
-            `).join('');
-        }
-
-        function createLast5Chart(last5Data) {
-            const ctx = document.getElementById('last5Chart').getContext('2d');
-            if (last5Chart) last5Chart.destroy();
-
-            const greyedOutDiv = document.getElementById('greyedOutPlayers');
-            const greyedOutPlayers = last5Data.filter(p => p.isGreyedOut);
-
-            last5Chart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: last5Data.map(p => p.name),
-                    datasets: [{
-                        label: 'Points in Last 5 GWs',
-                        data: last5Data.map(p => p.points),
-                        backgroundColor: last5Data.map(p => p.isGreyedOut ? '#D1D5DB' : '#3B82F6'),
-                        borderWidth: 1,
-                        borderRadius: 5
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Points'
-                            }
-                        }
-                    }
-                }
-            });
-
-            greyedOutDiv.innerHTML = greyedOutPlayers.length ? 
-                `<p class="font-medium">Greyed out players:</p>
-                 ${greyedOutPlayers.map(p => 
-                     `<p>${p.name} - In squad for only ${p.weeksInSquad} of last 5 GWs</p>`
-                 ).join('')}` : '';
         }
 
         function populateResults(data) {
@@ -396,10 +281,10 @@
             });
         }
   
-        function shareApp() {
-            const url = window.location.href;
-            navigator.share ? navigator.share({ url, text: "Check out this FPL Manager stats app!", title: "FPL Manager Stats" }) : alert("Sharing not supported on this device.");
-        }
-    </script>
-</body>
-</html>
+          function shareApp() {
+              const url = window.location.href;
+              navigator.share ? navigator.share({ url, text: "Check out this FPL Manager stats app!", title: "FPL Manager Stats" }) : alert("Sharing not supported on this device.");
+          }
+      </script>
+  </body>
+  </html>

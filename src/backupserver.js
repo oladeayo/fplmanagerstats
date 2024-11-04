@@ -74,61 +74,6 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
     let lowestRank = 0;
     let lowestRankGW = 0;
 
-    // Get current team and fixtures
-    const currentTeam = [];
-    const managerPicksResponse = await axios.get(`https://fantasy.premierleague.com/api/entry/${managerId}/event/${currentGameweek}/picks/`);
-    const managerPicks = managerPicksResponse.data.picks;
-
-    for (const pick of managerPicks) {
-      const player = playerData.elements.find(p => p.id === pick.element);
-      if (!player) continue;
-
-      const fixturesResponse = await axios.get(`https://fantasy.premierleague.com/api/element-summary/${player.id}/`);
-      const nextFixtures = fixturesResponse.data.fixtures.slice(0, 5).map(fixture => {
-        const isHome = fixture.is_home;
-        const opponent = playerData.teams.find(t => t.id === (isHome ? fixture.team_a : fixture.team_h)).short_name;
-        return {
-          opponent,
-          isHome,
-          difficulty: fixture.difficulty
-        };
-      });
-
-      currentTeam.push({
-        name: player.web_name,
-        nextFixtures
-      });
-    }
-
-    // Get last 5 GWs data
-    const last5GWsData = [];
-    const last5GWs = Array.from({length: 5}, (_, i) => currentGameweek - i).filter(gw => gw > 0);
-    
-    for (const playerId of managerPicks.map(pick => pick.element)) {
-      const player = playerData.elements.find(p => p.id === playerId);
-      if (!player) continue;
-
-      let points = 0;
-      let appearances = 0;
-
-      for (const gw of last5GWs) {
-        const historyResponse = await axios.get(`https://fantasy.premierleague.com/api/element-summary/${playerId}/`);
-        const gwHistory = historyResponse.data.history.find(h => h.round === gw);
-        if (gwHistory) {
-          points += gwHistory.total_points;
-          appearances++;
-        }
-      }
-
-      const isGreyedOut = appearances === 0;
-      
-      last5GWsData.push({
-        name: player.web_name,
-        points,
-        isGreyedOut
-      });
-    }
-
     for (let gw = 1; gw <= currentGameweek; gw++) {
       const managerPicksResponse = await axios.get(`https://fantasy.premierleague.com/api/entry/${managerId}/event/${gw}/picks/`);
       const managerPicksData = managerPicksResponse.data;
@@ -249,9 +194,7 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
         players: Object.values(players).sort((a, b) => b.points - a.points)
       })),
       weeklyPoints,
-      weeklyRanks,
-      currentTeam,
-      last5GWsData
+      weeklyRanks
     };
 
     res.json(analysis);
