@@ -36,7 +36,7 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
   try {
     const { managerId } = req.params;
     const leagueId = 314; // Your league ID
-    
+
     // Fetch all required data in parallel
     const [playerDataResponse, managerEntryResponse, historyResponse, leagueResponse] = await Promise.all([
       axios.get('https://fantasy.premierleague.com/api/bootstrap-static/'),
@@ -63,7 +63,7 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
     // Process each gameweek
     const weeklyPoints = new Array(currentGameweek).fill(0);
     const weeklyRanks = new Array(currentGameweek).fill(0);
-    
+
     // Track highest and lowest stats
     let highestPoints = 0;
     let highestPointsGW = 0;
@@ -83,7 +83,7 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
       const isTripleCaptain = managerPicksData.active_chip === "3xc";
 
       let gwPoints = 0;
-      
+
       for (const pick of managerPicks) {
         const playerId = pick.element;
         const player = playerData.elements.find(p => p.id == playerId);
@@ -139,12 +139,12 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
           totalPointsLostOnBench += pointsThisWeek;
         }
       }
-      
+
       // Update weekly stats
       weeklyPoints[gw - 1] = gwPoints;
       const gwRank = historyData.current.find(h => h.event === gw)?.overall_rank || 0;
       weeklyRanks[gw - 1] = gwRank;
-      
+
       // Update highest/lowest tracking
       if (gwPoints > highestPoints) {
         highestPoints = gwPoints;
@@ -163,6 +163,21 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
         lowestRankGW = gw;
       }
     }
+
+    // Adding player performance data for the last 5 GWs
+    const playerPerformance = Object.values(playerStats).map(player => {
+        const recentGWs = historyData.current
+            .slice(-5)
+            .map(gw => ({
+                gameweek: gw.event,
+                points: gw.points, // assuming you calculate points for each GW earlier
+                isCaptain: false // example, update this if you track captaincy
+            }));
+        return {
+            name: player.name,
+            gameweeks: recentGWs.filter(gw => gw.points > 0) // or other criteria for inclusion
+        };
+    });
 
     // Prepare the complete analysis object
     const analysis = {
@@ -194,7 +209,8 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
         players: Object.values(players).sort((a, b) => b.points - a.points)
       })),
       weeklyPoints,
-      weeklyRanks
+      weeklyRanks,
+      playerPerformance // add player performance to the response
     };
 
     res.json(analysis);
@@ -203,6 +219,7 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
     res.status(500).json({ error: 'Failed to analyze manager' });
   }
 });
+
 
 module.exports = app;
 
