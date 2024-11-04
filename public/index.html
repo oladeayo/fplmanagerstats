@@ -1,9 +1,7 @@
 <script>
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-  </script>
-  <script defer src="/_vercel/insights/script.js"></script>
-
-  <!DOCTYPE html>
+</script>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -13,6 +11,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <link rel="icon" href="football.ico" type="image/x-icon">
+    <style>
+        .sticky-column {
+            position: sticky;
+            left: 0;
+            z-index: 10;
+            background-color: white;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
 
@@ -69,7 +75,7 @@
                 <table class="min-w-full">
                     <thead>
                         <tr>
-                            <th class="px-4 py-2 text-left">Player</th>
+                            <th class="sticky-column px-4 py-2 text-left">Player</th>
                             <th class="px-4 py-2 text-center" colspan="5">Next 5 Fixtures</th>
                         </tr>
                     </thead>
@@ -161,23 +167,23 @@
 
         function getFDRColor(difficulty) {
             const colors = {
-                1: 'bg-green-500',
-                2: 'bg-green-300',
-                3: 'bg-gray-300',
-                4: 'bg-red-300',
-                5: 'bg-red-500'
+                1: '#00FF00',  // Green
+                2: '#7FFF00',  // Light Green
+                3: '#E5E4E2',  // Gray
+                4: '#FF5733',  // Red-Orange
+                5: '#cc0000'   // Orange-Red
             };
-            return colors[difficulty] || 'bg-gray-300';
+            return `background-color: ${colors[difficulty] || '#E5E4E2'}`;
         }
 
         function populateFixtures(teamData) {
             const fixturesBody = document.getElementById('fixturesBody');
             fixturesBody.innerHTML = teamData.map(player => `
                 <tr class="border-t">
-                    <td class="px-4 py-2">${player.name}</td>
+                    <td class="sticky-column px-4 py-2">${player.name}</td>
                     ${player.nextFixtures.map(fixture => `
                         <td class="px-2 py-2">
-                            <div class="${getFDRColor(fixture.difficulty)} text-xs rounded p-1 text-center text-white">
+                            <div style="${getFDRColor(fixture.difficulty)}" class="text-xs rounded p-1 text-center">
                                 ${fixture.opponent} (${fixture.isHome ? 'H' : 'A'})
                             </div>
                         </td>
@@ -192,6 +198,9 @@
 
             const greyedOutDiv = document.getElementById('greyedOutPlayers');
             const greyedOutPlayers = last5Data.filter(p => p.isGreyedOut);
+            
+            // Sort data by points in descending order
+            last5Data.sort((a, b) => b.pointsInTeam - a.pointsInTeam);
 
             last5Chart = new Chart(ctx, {
                 type: 'bar',
@@ -199,7 +208,7 @@
                     labels: last5Data.map(p => p.name),
                     datasets: [{
                         label: 'Points in Last 5 GWs',
-                        data: last5Data.map(p => p.points),
+                        data: last5Data.map(p => p.pointsInTeam), // Use pointsInTeam instead of points
                         backgroundColor: last5Data.map(p => p.isGreyedOut ? '#D1D5DB' : '#3B82F6'),
                         borderWidth: 1,
                         borderRadius: 5
@@ -284,7 +293,7 @@
                           <table class="min-w-full bg-white border rounded-lg">
                               <thead class="bg-gray-50">
                                   <tr>
-                                      <th class="sticky left-0 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50 z-10">Player Name</th>
+                                      <th class="sticky-column px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Player Name</th>
                                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Team</th>
                                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
                                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
@@ -300,7 +309,7 @@
                 html += `
                     <tr
                       class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-100 transition-colors duration-200">
-                        <td class="sticky left-0 px-6 py-4 text-sm font-medium text-gray-900 bg-white z-10">
+                        <td class="sticky-column px-6 py-4 text-sm font-medium text-gray-900 bg-white">
                           ${player.name}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-500">${player.team}</td>
