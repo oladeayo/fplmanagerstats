@@ -252,12 +252,15 @@
                               <tbody class="bg-white divide-y divide-gray-200">
                   `;
 
-            data.playerStats.forEach((player, index) => {
+            // Sort players by total points in descending order
+            const sortedPlayers = [...data.playerStats].sort((a, b) => b.totalPointsActive - a.totalPointsActive);
+
+            sortedPlayers.forEach((player, index) => {
                 html += `
                     <tr
                       class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-100 transition-colors duration-200">
                         <td class="sticky-column px-6 py-4 text-sm font-medium text-gray-900 bg-white">
-                          ${player.name}
+                          ${player.name} (${player.totalPointsActive} pts)
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-500">${player.team}</td>
                         <td class="px-6 py-4 text-sm text-gray-500">${player.position}</td>
@@ -364,7 +367,7 @@
             last5GWChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: playerPoints.map(player => player.name),
+                    labels: playerPoints.map(player => `${player.name} (${player.points} pts)`),
                     datasets: [{
                         label: 'Points in Last 5 GWs',
                         data: playerPoints.map(player => player.points),
