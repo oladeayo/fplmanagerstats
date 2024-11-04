@@ -86,6 +86,17 @@
             </div>
         </div>
 
+        <!-- Last 5 GWs Performance Card -->
+        <div id="last5Performance" class="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-6 hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Last 5 Gameweeks Performance</h2>
+            <div class="relative h-[400px] w-full">
+                <canvas id="last5Chart"></canvas>
+            </div>
+            <div id="greyedOutPlayers" class="mt-4 text-sm text-gray-600">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
         <!-- Share Button -->
         <div class="flex justify-center mt-8">
             <button onclick="shareApp()" 
@@ -107,12 +118,14 @@
     <script>
         let pointsChart = null;
         let rankChart = null;
+        let last5Chart = null;
 
         async function analyzeManager() {
             const managerId = document.getElementById('managerId').value;
             const resultsDiv = document.getElementById('results');
             const chartsDiv = document.getElementById('charts');
             const currentTeamFixtures = document.getElementById('currentTeamFixtures');
+            const last5Performance = document.getElementById('last5Performance');
 
             // Display loading spinner
             resultsDiv.innerHTML = `
@@ -122,6 +135,7 @@
             `;
             chartsDiv.classList.add('hidden');
             currentTeamFixtures.classList.add('hidden');
+            last5Performance.classList.add('hidden');
 
             try {
                 const response = await fetch(`/api/analyze-manager/${managerId}`);
@@ -131,6 +145,12 @@
                 populateResults(data);
                 createCharts(data.weeklyPoints, data.weeklyRanks);
                 populateFixtures(data.currentTeam);
+                
+                // Only create last5Chart if data exists
+                if (data.last5GWsData && data.last5GWsData.length > 0) {
+                    createLast5Chart(data.last5GWsData);
+                    last5Performance.classList.remove('hidden');
+                }
 
                 chartsDiv.classList.remove('hidden');
                 currentTeamFixtures.classList.remove('hidden');
@@ -145,6 +165,7 @@
                 `;
                 chartsDiv.classList.add('hidden');
                 currentTeamFixtures.classList.add('hidden');
+                last5Performance.classList.add('hidden');
             }
         }
 
@@ -173,6 +194,92 @@
                     `).join('')}
                 </tr>
             `).join('');
+        }
+
+        function createLast5Chart(last5Data) {
+            const ctx = document.getElementById('last5Chart').getContext('2d');
+            
+            if (last5Chart) {
+                last5Chart.destroy();
+            }
+
+            // Ensure data exists and has required properties
+            if (!last5Data || !Array.isArray(last5Data) || last5Data.length === 0) {
+                console.error('Invalid last5GWsData:', last5Data);
+                return;
+            }
+
+            // Mark players with less than 3 GWs as greyed out
+            const processedData = last5Data.map(player => ({
+                ...player,
+                isGreyedOut: player.weeksInSquad < 3,
+                pointsInTeam: player.pointsInTeam || 0, // Ensure pointsInTeam exists
+                name: player.name || 'Unknown Player' // Ensure name exists
+            }));
+
+            // Sort by points in descending order
+            processedData.sort((a, b) => b.pointsInTeam - a.pointsInTeam);
+
+            last5Chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: processedData.map(p => p.name),
+                    datasets: [{
+                        label: 'Points',
+                        data: processedData.map(p => p.pointsInTeam),
+                        backgroundColor: processedData.map(p => p.isGreyedOut ? '#D1D5DB' : '#3B82F6'),
+                        borderColor: processedData.map(p => p.isGreyedOut ? '#9CA3AF' : '#2563EB'),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const player = processedData[context.dataIndex];
+                                    return `Points: ${player.pointsInTeam} (${player.weeksInSquad} GWs played)`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Points'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                autoSkip: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Update greyed out players explanation
+            const greyedOutDiv = document.getElementById('greyedOutPlayers');
+            const greyedOutPlayers = processedData.filter(p => p.isGreyedOut);
+            
+            if (greyedOutPlayers.length > 0) {
+                greyedOutDiv.innerHTML = `
+                    <p class="font-medium">Players with less than 3 GWs in team:</p>
+                    ${greyedOutPlayers.map(p => 
+                        `<p>${p.name} - ${p.weeksInSquad} GW${p.weeksInSquad !== 1 ? 's' : ''} played</p>`
+                    ).join('')}
+                `;
+            } else {
+                greyedOutDiv.innerHTML = '';
+            }
         }
 
         function populateResults(data) {
