@@ -374,8 +374,14 @@
                     }]
                 },
                 options: {
+                    indexAxis: 'y', // This makes the bar chart horizontal
                     responsive: true,
-                    maintainAspectRatio: false
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true
+                        }
+                    }
                 }
             });
         }                                                       
