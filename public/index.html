@@ -89,8 +89,8 @@
         <!-- Last 5 GWs Performance Card -->
         <div id="last5Performance" class="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-6 hidden">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Last 5 Gameweeks Performance</h2>
-            <div class="relative h-[400px]">
-                <canvas id="last5Chart"></canvas>
+            <div class="relative h-[400px] w-full">
+                <canvas id="last5Chart" style="width: 100%; height: 100%;"></canvas>
             </div>
             <div id="greyedOutPlayers" class="mt-4 text-sm text-gray-600">
                 <!-- Populated by JavaScript -->
@@ -193,8 +193,13 @@
         }
 
         function createLast5Chart(last5Data) {
-            const ctx = document.getElementById('last5Chart').getContext('2d');
-            if (last5Chart) last5Chart.destroy();
+            const canvas = document.getElementById('last5Chart');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear any existing chart
+            if (last5Chart) {
+                last5Chart.destroy();
+            }
 
             const greyedOutDiv = document.getElementById('greyedOutPlayers');
             
@@ -205,6 +210,10 @@
 
             // Sort data by points in descending order
             last5Data.sort((a, b) => b.pointsInTeam - a.pointsInTeam);
+
+            // Set canvas dimensions
+            canvas.style.height = '400px';
+            canvas.style.width = '100%';
 
             last5Chart = new Chart(ctx, {
                 type: 'bar',
