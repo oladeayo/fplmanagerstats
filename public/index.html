@@ -54,7 +54,6 @@
             <!-- Points Chart -->
             <div class="bg-white rounded-lg shadow-lg p-6">
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">Points Per Gameweek</h2>
-                <p class="text-xs text-gray-600 mb-2">${data.managerInfo.name}</p>
                 <div class="relative h-[300px] md:h-[400px]">
                     <canvas id="pointsChart"></canvas>
                 </div>
@@ -63,7 +62,6 @@
             <!-- Rank Chart -->
             <div class="bg-white rounded-lg shadow-lg p-6">
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">Rank Per Gameweek</h2>
-                <p class="text-xs text-gray-600 mb-2">${data.managerInfo.name}</p>
                 <div class="relative h-[300px] md:h-[400px]">
                     <canvas id="rankChart"></canvas>
                 </div>
@@ -73,7 +71,6 @@
          <!-- Current Team & Fixtures Card -->
          <div id="currentTeamFixtures" class="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-6 hidden">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Upcoming Fixtures</h2>
-            <p class="text-xs text-gray-600 mb-2">${data.managerInfo.name}</p>
             <div class="overflow-x-auto">
                 <table class="min-w-full">
                     <thead>
@@ -184,9 +181,9 @@
             let html = `
                   <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
                       <h2 class="text-2xl font-bold text-gray-800 mb-4">Manager's Summary</h2>
-                      <p class="text-xs text-gray-600 mb-2">${data.managerInfo.name}</p>
                       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div class="space-y-2">
+                            <p class="text-gray-600"><strong>Team Name:</strong> ${data.managerInfo.name}</p>
                               <p class="text-gray-600"><strong>Team Name:</strong> ${data.managerInfo.teamName}</p>
                               <p class="text-gray-600"><strong>Current Gameweek:</strong> GW ${data.managerInfo.currentGameweek}</p>
                               <p class="text-gray-600"><strong>Total Points:</strong> ${data.managerInfo.managerPoints} Points</p>
