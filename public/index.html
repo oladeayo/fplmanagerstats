@@ -12,11 +12,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        canvas { width: 100% !important; height: auto !important; }
-    </style>
     <link rel="icon" href="football.ico" type="image/x-icon">
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -64,17 +59,6 @@
                     <canvas id="rankChart"></canvas>
                 </div>
             </div>
-
-            <!-- Player Performance Horizontal Bar Chart -->
-            <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Player Performance (Last 5 GWs)</h2>
-            <p class="text-gray-500 mb-4">*Gray bars indicate players who have been in your team for less than 3 of the last 5 GWs.</p>
-            <div class="relative h-[500px]">
-            <canvas id="playerPerformanceBarChart"></canvas>
-            </div>
-            </div>
-
-            
         </div>
 
         <!-- Share Button -->
@@ -94,51 +78,6 @@
             </p>
         </div>
     </div>
-
-    <div>
-        <canvas id="myChart"></canvas>
-        <p id="note" style="color: gray;"></p>
-    </div>
-    <script>
-        document.getElementById('submit').addEventListener('click', async () => {
-            const managerId = document.getElementById('managerId').value;
-            const response = await fetch(`http://localhost:3000/api/analyze-manager/${managerId}`);
-            const data = await response.json();
-
-            const playerNames = data.playerStats.map(player => player.name);
-            const playerPoints = data.playerStats.map(player => player.totalPointsActive);
-            const playerGWs = data.playerStats.map(player => player.gwInSquad);
-            const barColors = playerGWs.map(gw => gw < 3 ? 'gray' : 'blue');
-            
-            // Clear previous chart if exists
-            if (window.myChart) {
-                window.myChart.destroy();
-            }
-
-            const ctx = document.getElementById('myChart').getContext('2d');
-            window.myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: playerNames,
-                    datasets: [{
-                        label: 'Total Points (last 5 GWs)',
-                        data: playerPoints,
-                        backgroundColor: barColors,
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                        }
-                    }
-                }
-            });
-
-            // Update note about players with less than 3 GWs
-            document.getElementById('note').innerText = 'Gray bars represent players with less than 3 GWs.';
-        });
-    </script>
 
     <script>
         let pointsChart = null;
@@ -164,8 +103,7 @@
                 const data = await response.json();
                 populateResults(data);
                 createCharts(data.weeklyPoints, data.weeklyRanks);
-                 // Call the new function with player performance data
-                createPlayerPerformanceBarChart(data.playerPerformance);
+                
 
                 chartsDiv.classList.remove('hidden');
             } catch (error) {
@@ -343,70 +281,6 @@
                 }
             });
         }
-
-
-
-        function createPlayerPerformanceBarChart(playerData) {
-            const ctx = document.getElementById('playerPerformanceBarChart').getContext('2d');
-
-    // Filter and process data
-        const processedData = playerData.map(player => {
-        // Sum points from last 5 GWs, excluding captain points
-        const totalPoints = player.gameweeks
-            .filter(gw => !gw.isCaptain)
-            .reduce((sum, gw) => sum + gw.points, 0);
-
-        return {
-            playerName: player.name,
-            points: totalPoints,
-            inTeamCount: player.gameweeks.length  // Number of GWs in the team
-        };
-    })
-    .sort((a, b) => b.points - a.points); // Sort by total points, high to low
-
-    // Prepare data for Chart.js
-    const labels = processedData.map(player => player.playerName);
-    const dataPoints = processedData.map(player => player.points);
-    const backgroundColors = processedData.map(player => 
-        player.inTeamCount < 3 ? 'rgba(128, 128, 128, 0.6)' : 'rgba(75, 192, 192, 0.6)'
-    );
-
-    // Create the horizontal bar chart
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Points (Last 5 GWs)',
-                data: dataPoints,
-                backgroundColor: backgroundColors,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            indexAxis: 'y',  // Horizontal bar chart
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { beginAtZero: true, title: { display: true, text: 'Points' } },
-                y: { title: { display: true, text: 'Players' } }
-            },
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: (context) => `${context.dataset.label}: ${context.raw}`
-                    }
-                }
-            }
-        }
-    });
-}
-
-
-
-           
   
           function shareApp() {
               const url = window.location.href;
