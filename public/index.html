@@ -142,7 +142,7 @@
                 populateResults(data);
                 createCharts(data.weeklyPoints, data.weeklyRanks);
                 populateFixtures(data.currentTeam);
-                createLast5GWChart(data.currentTeam);
+                createLast5GWChart(data.last5GWsData);
 
                 chartsDiv.classList.remove('hidden');
                 currentTeamFixtures.classList.remove('hidden');
@@ -355,75 +355,76 @@
             });
         }
 
-        function createLast5GWChart(teamData) {
-        const ctx = document.getElementById('last5GWChart').getContext('2d');
-        if (last5GWChart) last5GWChart.destroy();
+        function createLast5GWChart(last5GWsData) {
+            const ctx = document.getElementById('last5GWChart').getContext('2d');
+            if (last5GWChart) last5GWChart.destroy();
 
-        // Process the data for the last 5 gameweeks
-        const playerPoints = teamData.map(player => {
-            const last5Points = player.last5GWPoints || new Array(5).fill(0);
-            const totalPoints = last5Points.reduce((sum, points) => sum + points, 0);
-            
-            return {
-                name: player.name.length > 15 ? player.name.substring(0, 15) + '...' : player.name,
-                points: totalPoints,
-                pointsBreakdown: last5Points
-            };
-        }).sort((a, b) => b.points - a.points);
+            const { players, gameweeks } = last5GWsData;
 
-        last5GWChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: playerPoints.map(player => `${player.name} (${player.points})`),
-                datasets: [{
-                    label: 'Total Points in Last 5 GWs',
-                    data: playerPoints.map(player => player.points),
-                    backgroundColor: 'rgba(59, 130, 246, 0.6)', // Blue color
-                    borderColor: 'rgb(59, 130, 246)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const player = playerPoints[context.dataIndex];
-                                const breakdown = player.pointsBreakdown.map((pts, idx) => 
-                                    `GW${idx + 1}: ${pts}pts`
-                                ).join(', ');
-                                return [`Total: ${player.points}pts`, `Breakdown: ${breakdown}`];
+            // Process the data for the last 5 gameweeks
+            const playerPoints = players.map(player => {
+                const totalPoints = player.last5GWPoints.reduce((sum, points) => sum + points, 0);
+                
+                return {
+                    name: player.name.length > 15 ? player.name.substring(0, 15) + '...' : player.name,
+                    points: totalPoints,
+                    pointsBreakdown: player.last5GWPoints
+                };
+            }).sort((a, b) => b.points - a.points);
+
+            last5GWChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: playerPoints.map(player => `${player.name} (${player.points})`),
+                    datasets: [{
+                        label: 'Total Points in Last 5 GWs',
+                        data: playerPoints.map(player => player.points),
+                        backgroundColor: 'rgba(59, 130, 246, 0.6)', // Blue color
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const player = playerPoints[context.dataIndex];
+                                    const breakdown = player.pointsBreakdown.map((pts, idx) => 
+                                        `GW${gameweeks[idx]}: ${pts}pts`
+                                    ).join(', ');
+                                    return [`Total: ${player.points}pts`, `Breakdown: ${breakdown}`];
+                                }
                             }
                         }
-                    }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Points'
-                        }
                     },
-                    y: {
-                        ticks: {
-                            autoSkip: false,
-                            font: {
-                                size: 11
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Points'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                autoSkip: false,
+                                font: {
+                                    size: 11
+                                }
                             }
                         }
                     }
                 }
-            }
-        });
-    }                                                     
+            });
+        }                                                     
   
         function shareApp() {
             const url = window.location.href;
