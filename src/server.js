@@ -4,9 +4,8 @@ const axios = require('axios');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const LEAGUE_ID = process.env.LEAGUE_ID || 314; // Default league ID
 
-// CORS middleware
+// CORS middleware for Vercel
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -18,38 +17,32 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(express.json());
 
-// Health check endpoint
+// Health check endpoint for Vercel
 app.get('/api/health', (req, res) => {
   res.json({ status: 'healthy' });
 });
 
-// Fetch bootstrap static data
+// Your existing endpoints remain the same
 app.get('/api/bootstrap-static', async (req, res) => {
   try {
     const response = await axios.get('https://fantasy.premierleague.com/api/bootstrap-static/');
     res.json(response.data);
   } catch (error) {
-    console.error('Error fetching bootstrap static data:', error);
     res.status(500).json({ error: 'Failed to fetch bootstrap static data' });
   }
 });
 
-// Analyze manager endpoint
 app.get('/api/analyze-manager/:managerId', async (req, res) => {
-  const { managerId } = req.params;
-
-  // Validate managerId
-  if (!/^\d+$/.test(managerId)) {
-    return res.status(400).json({ error: 'Invalid manager ID format' });
-  }
-
   try {
+    const { managerId } = req.params;
+    const leagueId = 314; // Your league ID
+    
     // Fetch all required data in parallel
     const [playerDataResponse, managerEntryResponse, historyResponse, leagueResponse] = await Promise.all([
       axios.get('https://fantasy.premierleague.com/api/bootstrap-static/'),
       axios.get(`https://fantasy.premierleague.com/api/entry/${managerId}/`),
       axios.get(`https://fantasy.premierleague.com/api/entry/${managerId}/history/`),
-      axios.get(`https://fantasy.premierleague.com/api/leagues-classic/${LEAGUE_ID}/standings/`)
+      axios.get(`https://fantasy.premierleague.com/api/leagues-classic/${leagueId}/standings/`)
     ]);
 
     const playerData = playerDataResponse.data;
@@ -211,30 +204,7 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
   }
 });
 
-// New endpoint for fetching player statistics by position
-app.get('/api/player-stats/:position', async (req, res) => {
-  const { position } = req.params;
-
-  try {
-    const response = await axios.get('https://fantasy.premierleague.com/api/bootstrap-static/');
-    const playerData = response.data.elements;
-
-    // Filter players by position
-    const positionMap = {
-      'gkp': 1,
-      'def': 2,
-      'mid': 3,
-      'fwd': 4
-    };
-
-    const filteredPlayers = playerData.filter(player => player.element_type === positionMap[position.toLowerCase()]);
-
-    res.json(filteredPlayers);
-  } catch (error) {
-    console.error('Error fetching player statistics:', error);
-    res.status(500).json({ error: 'Failed to fetch player statistics' });
-  }
-});
+module.exports = app;
 
 // Only listen if running directly (not in Vercel)
 if (require.main === module) {
