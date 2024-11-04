@@ -358,7 +358,7 @@
 
             const playerPoints = teamData.map(player => ({
                 name: player.name,
-                points: player.last5GWPoints.reduce((a, b) => a + b, 0)
+                points: player.last5GWPoints ? player.last5GWPoints.reduce((a, b) => a + b, 0) : 0
             })).sort((a, b) => b.points - a.points);
 
             last5GWChart = new Chart(ctx, {
