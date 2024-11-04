@@ -12,8 +12,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <link rel="icon" href="football.ico" type="image/x-icon">
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -105,8 +103,7 @@
                 const data = await response.json();
                 populateResults(data);
                 createCharts(data.weeklyPoints, data.weeklyRanks);
-                createPlayerPerformanceChart(data.playerStats, data.managerInfo.currentGameweek);
-
+                
 
                 chartsDiv.classList.remove('hidden');
             } catch (error) {
@@ -230,22 +227,9 @@
             });
         }
 
-        function createCharts(weeklyPoints, weeklyRanks, playerData, currentGameweek) {
+        function createCharts(weeklyPoints, weeklyRanks) {
             createPointsChart(weeklyPoints);
             createRankChart(weeklyRanks);
-        }
-        function createPlayerPerformanceChart(playerData, currentGameweek) {
-            const chartsDiv = document.getElementById('charts');
-            const playerPerformanceChart = document.createElement('div');
-            playerPerformanceChart.innerHTML = `
-                <ANTARTIFACTLINK identifier="player-performance-chart" type="application/vnd.ant.react" title="Player Performance in Last 5 Gameweeks" isClosed="true" />
-            `;
-            chartsDiv.appendChild(playerPerformanceChart);
-
-            ReactDOM.render(
-                React.createElement(PlayerPerformanceChart, { playerData, currentGameweek }),
-                playerPerformanceChart.querySelector('antArtifact')
-            );
         }
 
         function createPointsChart(weeklyPoints) {
@@ -297,15 +281,11 @@
                 }
             });
         }
-
-
-        
   
           function shareApp() {
               const url = window.location.href;
               navigator.share ? navigator.share({ url, text: "Check out this FPL Manager stats app!", title: "FPL Manager Stats" }) : alert("Sharing not supported on this device.");
           }
       </script>
-      <script src="/player-performance-chart.js"></script>
   </body>
   </html>
