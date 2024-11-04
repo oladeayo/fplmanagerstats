@@ -27,7 +27,7 @@ async function getBootstrapData() {
   if (bootstrapCache && bootstrapCacheTime && (now - bootstrapCacheTime < CACHE_DURATION)) {
     return bootstrapCache;
   }
-  
+
   const response = await axios.get('https://fantasy.premierleague.com/api/bootstrap-static/');
   bootstrapCache = response.data;
   bootstrapCacheTime = now;
@@ -189,4 +189,4 @@ if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
-}
+});
