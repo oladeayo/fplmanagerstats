@@ -174,8 +174,11 @@
                             ${data.players.map(player => `
                                 <tr data-position="${player.position}">
                                     <td class="px-6 py-4 font-medium">${player.name}</td>
-                                    <td class="px-6 py-4">${player.position}</td>
-                                    <td class="px-6 py-4">${player.points}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">${player.position}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">${player.totalPointsActive}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">${player.gwInSquad}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">${player.starts}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">${player.cappedPoints}</td>
                                 </tr>`).join('')}
                         </tbody>
                     </table>
@@ -183,19 +186,6 @@
             </div>
                 `;
 
-                data.playerStats.forEach((player, index) => {
-                    html += `
-                        <tr class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900">${player.name}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">${player.team}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">${player.position}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">${player.totalPointsActive}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">${player.gwInSquad}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">${player.starts}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">${player.cappedPoints}</td>
-                        </tr>
-                    `;
-                });
               resultsDiv.innerHTML = html;
           }
   
