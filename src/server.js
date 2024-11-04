@@ -100,66 +100,169 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
       });
     }
 
-     // Get last 5 GWs data with improved structure
-     const last5GWs = Array.from({ length: 5 }, (_, i) => currentGameweek - i)
-     .filter(gw => gw > 0)
-     .reverse(); // Reverse to get chronological order
+    // Get last 5 GWs data
+    const last5GWsData = [];
+    const last5GWs = Array.from({length: 5}, (_, i) => currentGameweek - i).filter(gw => gw > 0);
+    
+    // Get player history for last 5 GWs
+    for (const pick of managerPicks) {
+      const player = playerData.elements.find(p => p.id === pick.element);
+      if (!player) continue;
 
-   const playerHistoryPromises = managerPicks.map(async (pick) => {
-     const player = playerData.elements.find(p => p.id === pick.element);
-     if (!player) return null;
+      const historyResponse = await axios.get(`https://fantasy.premierleague.com/api/element-summary/${player.id}/`);
+      const playerHistory = historyResponse.data.history;
 
-     const historyResponse = await axios.get(`https://fantasy.premierleague.com/api/element-summary/${player.id}/`);
-     const playerHistory = historyResponse.data.history;
+      let points = 0;
+      let appearances = 0;
 
-     // Get points for each of the last 5 GWs
-     const last5GWPoints = last5GWs.map(gw => {
-       const gwHistory = playerHistory.find(h => h.round === gw);
-       return gwHistory ? gwHistory.total_points : 0;
-     });
+      for (const gw of last5GWs) {
+        const gwHistory = playerHistory.find(h => h.round === gw);
+        if (gwHistory) {
+          points += gwHistory.total_points;
+          appearances++;
+        }
+      }
 
-     return {
-       name: player.web_name,
-       position: ["GKP", "DEF", "MID", "FWD"][player.element_type - 1],
-       team: playerData.teams[player.team - 1].short_name,
-       last5GWPoints,
-       totalLast5Points: last5GWPoints.reduce((sum, points) => sum + points, 0)
-     };
-   });
+      last5GWsData.push({
+        name: player.web_name,
+        points,
+        isGreyedOut: appearances === 0
+      });
+    }
 
-   const last5GWsData = (await Promise.all(playerHistoryPromises))
-     .filter(data => data !== null)
-     .sort((a, b) => b.totalLast5Points - a.totalLast5Points);
+    for (let gw = 1; gw <= currentGameweek; gw++) {
+      const managerPicksResponse = await axios.get(`https://fantasy.premierleague.com/api/entry/${managerId}/event/${gw}/picks/`);
+      const managerPicksData = managerPicksResponse.data;
+      const managerPicks = managerPicksData.picks;
 
-   // Add gameweek labels
-   const last5GWLabels = last5GWs.map(gw => `GW${gw}`);
+      const isBenchBoost = managerPicksData.active_chip === "bboost";
+      const isTripleCaptain = managerPicksData.active_chip === "3xc";
 
-   // Prepare the complete analysis object
-   const analysis = {
-     managerInfo: {
-       // ... (previous managerInfo remains the same)
-     },
-     playerStats: Object.values(playerStats).sort((a, b) => b.totalPointsActive - a.totalPointsActive),
-     positionSummary: Object.entries(positionPoints).map(([position, players]) => ({
-       position,
-       totalPoints: Object.values(players).reduce((sum, player) => sum + player.points, 0),
-       players: Object.values(players).sort((a, b) => b.points - a.points)
-     })),
-     weeklyPoints,
-     weeklyRanks,
-     currentTeam,
-     last5GWsData: {
-       players: last5GWsData,
-       gameweeks: last5GWLabels
-     }
-   };
+      let gwPoints = 0;
+      
+      for (const pick of managerPicks) {
+        const playerId = pick.element;
+        const player = playerData.elements.find(p => p.id == playerId);
+        if (!player) continue;
 
-   res.json(analysis);
- } catch (error) {
-   console.error('Error analyzing manager:', error);
-   res.status(500).json({ error: 'Failed to analyze manager' });
- }
+        const playerHistoryResponse = await axios.get(`https://fantasy.premierleague.com/api/element-summary/${playerId}/`);
+        const playerHistory = playerHistoryResponse.data.history;
+        const gameweekHistory = playerHistory.find(history => history.round === gw);
+        const pointsThisWeek = gameweekHistory ? gameweekHistory.total_points : 0;
+
+        if (!playerStats[playerId]) {
+          playerStats[playerId] = {
+            name: player.web_name,
+            team: playerData.teams[player.team - 1].name,
+            position: ["GKP", "DEF", "MID", "FWD"][player.element_type - 1],
+            totalPointsActive: 0,
+            gwInSquad: 0,
+            starts: 0,
+            cappedPoints: 0,
+            playerPoints: 0
+          };
+        }
+
+        const inStarting11 = pick.position <= 11;
+        const isCaptain = pick.is_captain;
+
+        playerStats[playerId].playerPoints += pointsThisWeek;
+
+        if (inStarting11 || isBenchBoost) {
+          let activePoints = pointsThisWeek;
+          if (isCaptain) {
+            activePoints *= isTripleCaptain ? 3 : 2;
+            totalCaptaincyPoints += activePoints;
+            playerStats[playerId].cappedPoints += activePoints;
+          }
+
+          playerStats[playerId].totalPointsActive += activePoints;
+          totalPointsActive += activePoints;
+          gwPoints += activePoints;
+
+          const position = playerStats[playerId].position;
+          if (!positionPoints[position][playerId]) {
+            positionPoints[position][playerId] = {
+              name: playerStats[playerId].name,
+              points: 0
+            };
+          }
+          positionPoints[position][playerId].points += activePoints;
+
+          if (inStarting11) playerStats[playerId].starts += 1;
+          playerStats[playerId].gwInSquad += 1;
+        } else {
+          totalPointsLostOnBench += pointsThisWeek;
+        }
+      }
+      
+      // Update weekly stats
+      weeklyPoints[gw - 1] = gwPoints;
+      const gwRank = historyData.current.find(h => h.event === gw)?.overall_rank || 0;
+      weeklyRanks[gw - 1] = gwRank;
+      
+      // Update highest/lowest tracking
+      if (gwPoints > highestPoints) {
+        highestPoints = gwPoints;
+        highestPointsGW = gw;
+      }
+      if (gwPoints < lowestPoints) {
+        lowestPoints = gwPoints;
+        lowestPointsGW = gw;
+      }
+      if (gwRank < highestRank) {
+        highestRank = gwRank;
+        highestRankGW = gw;
+      }
+      if (gwRank > lowestRank) {
+        lowestRank = gwRank;
+        lowestRankGW = gw;
+      }
+    }
+
+    // Prepare the complete analysis object
+    const analysis = {
+      managerInfo: {
+        name: `${managerEntryData.player_first_name} ${managerEntryData.player_last_name}`,
+        teamName: managerEntryData.name,
+        overallRanking: managerEntryData.summary_overall_rank?.toLocaleString() || "N/A",
+        managerPoints: managerEntryData.summary_overall_points,
+        allChipsUsed: historyData.chips.map(chip => chip.name).join(", ") || "None",
+        lastSeasonRank: historyData.past.length > 0 ? historyData.past[historyData.past.length - 1].rank.toLocaleString() : "Didn't Play",
+        seasonBeforeLastRank: historyData.past.length > 1 ? historyData.past[historyData.past.length - 2].rank.toLocaleString() : "Didn't Play",
+        pointDifference: managerEntryData.summary_overall_points - topManagerPoints,
+        totalPointsLostOnBench,
+        totalCaptaincyPoints,
+        currentGameweek,
+        highestPoints,
+        highestPointsGW,
+        lowestPoints,
+        lowestPointsGW,
+        highestRank: highestRank.toLocaleString(),
+        highestRankGW,
+        lowestRank: lowestRank.toLocaleString(),
+        lowestRankGW
+      },
+      playerStats: Object.values(playerStats).sort((a, b) => b.totalPointsActive - a.totalPointsActive),
+      positionSummary: Object.entries(positionPoints).map(([position, players]) => ({
+        position,
+        totalPoints: Object.values(players).reduce((sum, player) => sum + player.points, 0),
+        players: Object.values(players).sort((a, b) => b.points - a.points)
+      })),
+      weeklyPoints,
+      weeklyRanks,
+      currentTeam,
+      last5GWsData: last5GWsData.sort((a, b) => b.points - a.points)
+    };
+
+    res.json(analysis);
+  } catch (error) {
+    console.error('Error analyzing manager:', error);
+    res.status(500).json({ error: 'Failed to analyze manager' });
+  }
 });
+
+module.exports = app;
 
 // Only listen if running directly (not in Vercel)
 if (require.main === module) {
