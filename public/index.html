@@ -87,12 +87,27 @@
         </div>
 
         <!-- Last 5 Gameweek Performance Card -->
-<div id="last5GWPerformance" class="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-6 hidden">
-    <h2 class="text-2xl font-bold text-gray-800 mb-4">Last 5 Gameweek Performance</h2>
-    <div class="relative h-[500px]"> <!-- Increased height for better visibility -->
-        <canvas id="last5GWChart"></canvas>
-    </div>
-</div>
+        <div id="last5GWPerformance" class="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-6 hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Last 5 Gameweek Performance</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white border rounded-lg">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="sticky-column px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Player Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GW-4</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GW-3</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GW-2</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GW-1</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current GW</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="last5GWBody">
+                        <!-- Will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
         <!-- Share Button -->
         <div class="flex justify-center mt-8">
@@ -142,7 +157,7 @@
                 populateResults(data);
                 createCharts(data.weeklyPoints, data.weeklyRanks);
                 populateFixtures(data.currentTeam);
-                createLast5GWChart(data.currentTeam);
+                populateLast5GW(data.playerStats);
 
                 chartsDiv.classList.remove('hidden');
                 currentTeamFixtures.classList.remove('hidden');
@@ -187,6 +202,32 @@
                     `).join('')}
                 </tr>
             `).join('');
+        }
+
+        function populateLast5GW(playerStats) {
+            const last5GWBody = document.getElementById('last5GWBody');
+            
+            // Sort players by total points in last 5 GWs
+            const sortedPlayers = [...playerStats].sort((a, b) => {
+                const aTotal = a.last5Points ? a.last5Points.reduce((sum, pts) => sum + pts, 0) : 0;
+                const bTotal = b.last5Points ? b.last5Points.reduce((sum, pts) => sum + pts, 0) : 0;
+                return bTotal - aTotal;
+            });
+
+            last5GWBody.innerHTML = sortedPlayers.map(player => {
+                const last5Points = player.last5Points || new Array(5).fill(0);
+                const total = last5Points.reduce((sum, pts) => sum + pts, 0);
+                
+                return `
+                    <tr class="hover:bg-gray-100">
+                        <td class="sticky-column px-6 py-4 text-sm font-medium text-gray-900 bg-white">${player.name}</td>
+                        ${last5Points.map(pts => 
+                            `<td class="px-6 py-4 text-sm text-gray-500">${pts}</td>`
+                        ).join('')}
+                        <td class="px-6 py-4 text-sm font-medium text-gray-900">${total}</td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         function populateResults(data) {
@@ -355,76 +396,6 @@
             });
         }
 
-        function createLast5GWChart(teamData) {
-        const ctx = document.getElementById('last5GWChart').getContext('2d');
-        if (last5GWChart) last5GWChart.destroy();
-
-        // Process the data for the last 5 gameweeks
-        const playerPoints = teamData.map(player => {
-            const last5Points = player.last5GWPoints || new Array(5).fill(0);
-            const totalPoints = last5Points.reduce((sum, points) => sum + points, 0);
-            
-            return {
-                name: player.name.length > 15 ? player.name.substring(0, 15) + '...' : player.name,
-                points: totalPoints,
-                pointsBreakdown: last5Points
-            };
-        }).sort((a, b) => b.points - a.points);
-
-        last5GWChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: playerPoints.map(player => `${player.name} (${player.points})`),
-                datasets: [{
-                    label: 'Total Points in Last 5 GWs',
-                    data: playerPoints.map(player => player.points),
-                    backgroundColor: 'rgba(59, 130, 246, 0.6)', // Blue color
-                    borderColor: 'rgb(59, 130, 246)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const player = playerPoints[context.dataIndex];
-                                const breakdown = player.pointsBreakdown.map((pts, idx) => 
-                                    `GW${idx + 1}: ${pts}pts`
-                                ).join(', ');
-                                return [`Total: ${player.points}pts`, `Breakdown: ${breakdown}`];
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Points'
-                        }
-                    },
-                    y: {
-                        ticks: {
-                            autoSkip: false,
-                            font: {
-                                size: 11
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }                                                     
-  
         function shareApp() {
             const url = window.location.href;
             navigator.share ? navigator.share({ url, text: "Check out this FPL Manager stats app!", title: "FPL Manager Stats" }) : alert("Sharing not supported on this device.");
