@@ -103,6 +103,8 @@
                 const data = await response.json();
                 populateResults(data);
                 createCharts(data.weeklyPoints, data.weeklyRanks);
+                createPlayerPerformanceChart(data.playerStats, data.managerInfo.currentGameweek);
+
 
                 chartsDiv.classList.remove('hidden');
             } catch (error) {
@@ -226,7 +228,7 @@
             });
         }
 
-        function createCharts(weeklyPoints, weeklyRanks) {
+        function createCharts(weeklyPoints, weeklyRanks, playerData, currentGameweek) {
             createPointsChart(weeklyPoints);
             createRankChart(weeklyRanks);
         }
@@ -279,6 +281,21 @@
                     scales: { y: { reverse: true, beginAtZero: true } }
                 }
             });
+        }
+
+
+        function createPlayerPerformanceChart(playerData, currentGameweek) {
+            const chartsDiv = document.getElementById('charts');
+            const playerPerformanceChart = document.createElement('div');
+            playerPerformanceChart.innerHTML = `
+                <ANTARTIFACTLINK identifier="player-performance-chart" type="application/vnd.ant.react" title="Player Performance in Last 5 Gameweeks" isClosed="true" />
+            `;
+            chartsDiv.appendChild(playerPerformanceChart);
+
+            ReactDOM.render(
+                React.createElement(PlayerPerformanceChart, { playerData, currentGameweek }),
+                playerPerformanceChart.querySelector('antArtifact')
+            );
         }
   
           function shareApp() {
