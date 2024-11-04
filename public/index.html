@@ -70,7 +70,7 @@
 
          <!-- Current Team & Fixtures Card -->
          <div id="currentTeamFixtures" class="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-6 hidden">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Current Team & Upcoming Fixtures</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Upcoming Fixtures</h2>
             <div class="overflow-x-auto">
                 <table class="min-w-full">
                     <thead>
@@ -197,8 +197,12 @@
             if (last5Chart) last5Chart.destroy();
 
             const greyedOutDiv = document.getElementById('greyedOutPlayers');
-            const greyedOutPlayers = last5Data.filter(p => p.isGreyedOut);
             
+            // Mark players as greyed out if they were in team for less than 3 GWs
+            last5Data.forEach(player => {
+                player.isGreyedOut = player.weeksInSquad < 3;
+            });
+
             // Sort data by points in descending order
             last5Data.sort((a, b) => b.pointsInTeam - a.pointsInTeam);
 
@@ -207,8 +211,7 @@
                 data: {
                     labels: last5Data.map(p => p.name),
                     datasets: [{
-                        label: 'Points in Last 5 GWs',
-                        data: last5Data.map(p => p.pointsInTeam), // Use pointsInTeam instead of points
+                        data: last5Data.map(p => p.pointsInTeam),
                         backgroundColor: last5Data.map(p => p.isGreyedOut ? '#D1D5DB' : '#3B82F6'),
                         borderWidth: 1,
                         borderRadius: 5
@@ -221,6 +224,14 @@
                     plugins: {
                         legend: {
                             display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const player = last5Data[context.dataIndex];
+                                    return `Points: ${player.pointsInTeam} (${player.weeksInSquad} GWs played)`;
+                                }
+                            }
                         }
                     },
                     scales: {
@@ -230,15 +241,22 @@
                                 display: true,
                                 text: 'Points'
                             }
+                        },
+                        y: {
+                            ticks: {
+                                autoSkip: false
+                            }
                         }
                     }
                 }
             });
 
+            // Update greyed out players explanation
+            const greyedOutPlayers = last5Data.filter(p => p.isGreyedOut);
             greyedOutDiv.innerHTML = greyedOutPlayers.length ? 
-                `<p class="font-medium">Greyed out players:</p>
+                `<p class="font-medium">Players with less than 3 GWs in team:</p>
                  ${greyedOutPlayers.map(p => 
-                     `<p>${p.name} - In squad for only ${p.weeksInSquad} of last 5 GWs</p>`
+                     `<p>${p.name} - ${p.weeksInSquad} GW${p.weeksInSquad !== 1 ? 's' : ''} played</p>`
                  ).join('')}` : '';
         }
 
