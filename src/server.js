@@ -22,7 +22,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'healthy' });
 });
 
-// Your existing endpoints remain the same
+// Endpoint to fetch bootstrap static data
 app.get('/api/bootstrap-static', async (req, res) => {
   try {
     const response = await axios.get('https://fantasy.premierleague.com/api/bootstrap-static/');
@@ -32,6 +32,7 @@ app.get('/api/bootstrap-static', async (req, res) => {
   }
 });
 
+// Analyze manager endpoint
 app.get('/api/analyze-manager/:managerId', async (req, res) => {
   try {
     const { managerId } = req.params;
@@ -94,9 +95,13 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
         };
       });
 
+      // Calculate total points for the last 5 fixtures
+      const totalPoints = fixturesResponse.data.history.slice(-5).reduce((sum, game) => sum + game.total_points, 0);
+
       currentTeam.push({
         name: player.web_name,
-        nextFixtures
+        nextFixtures,
+        totalPoints // Include totalPoints here
       });
     }
 
@@ -221,7 +226,8 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
       })),
       weeklyPoints,
       weeklyRanks,
-      currentTeam
+      currentTeam, // Include currentTeam with player performance
+      playerPerformance: currentTeam // Send player performance data to the front end
     };
 
     res.json(analysis);
@@ -231,11 +237,7 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
   }
 });
 
-module.exports = app;
-
-// Only listen if running directly (not in Vercel)
-if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});

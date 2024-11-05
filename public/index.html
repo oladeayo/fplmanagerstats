@@ -48,6 +48,13 @@
         <!-- Results Section -->
         <div id="results" class="max-w-4xl mx-auto space-y-6"></div>
 
+        <!-- Performance Card Section -->
+        <div id="performanceCard" class="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-6 hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Last Performance (Total Points)</h2>
+            <div class="relative h-[300px] md:h-[400px]">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
 
         <!-- Charts Section -->
         <div id="charts" class="max-w-4xl mx-auto mt-8 space-y-6 hidden">
@@ -68,8 +75,8 @@
             </div>
         </div>
 
-         <!-- Current Team & Fixtures Card -->
-         <div id="currentTeamFixtures" class="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-6 hidden">
+        <!-- Current Team & Fixtures Card -->
+        <div id="currentTeamFixtures" class="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-6 hidden">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Upcoming Fixtures</h2>
             <div class="overflow-x-auto">
                 <table class="min-w-full">
@@ -107,13 +114,14 @@
     <script>
         let pointsChart = null;
         let rankChart = null;
-        let last5GWChart = null;
+        let performanceChart = null; // For the performance chart
 
         async function analyzeManager() {
             const managerId = document.getElementById('managerId').value;
             const resultsDiv = document.getElementById('results');
             const chartsDiv = document.getElementById('charts');
             const currentTeamFixtures = document.getElementById('currentTeamFixtures');
+            const performanceCard = document.getElementById('performanceCard');
 
             // Display loading spinner
             resultsDiv.innerHTML = `
@@ -123,6 +131,7 @@
             `;
             chartsDiv.classList.add('hidden');
             currentTeamFixtures.classList.add('hidden');
+            performanceCard.classList.add('hidden'); // Hide performance card
 
             try {
                 const response = await fetch(`/api/analyze-manager/${managerId}`);
@@ -132,9 +141,11 @@
                 populateResults(data);
                 createCharts(data.weeklyPoints, data.weeklyRanks);
                 populateFixtures(data.currentTeam);
+                createPerformanceChart(data.playerPerformance); // Create the performance chart
 
                 chartsDiv.classList.remove('hidden');
                 currentTeamFixtures.classList.remove('hidden');
+                performanceCard.classList.remove('hidden'); // Show performance card
             } catch (error) {
                 resultsDiv.innerHTML = `
                     <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
@@ -146,6 +157,7 @@
                 `;
                 chartsDiv.classList.add('hidden');
                 currentTeamFixtures.classList.add('hidden');
+                performanceCard.classList.add('hidden'); // Hide performance card
             }
         }
 
@@ -178,211 +190,98 @@
 
         function populateResults(data) {
             const resultsDiv = document.getElementById('results');
-            let html = `
-                  <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                      <h2 class="text-2xl font-bold text-gray-800 mb-4">Manager's Summary</h2>
-                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div class="space-y-2">
-                            <p class="text-gray-600"><strong>Team Name:</strong> ${data.managerInfo.name}</p>
-                              <p class="text-gray-600"><strong>Team Name:</strong> ${data.managerInfo.teamName}</p>
-                              <p class="text-gray-600"><strong>Current Gameweek:</strong> GW ${data.managerInfo.currentGameweek}</p>
-                              <p class="text-gray-600"><strong>Total Points:</strong> ${data.managerInfo.managerPoints} Points</p>
-                              <p class="text-gray-600"><strong>Average Points Per GW:</strong> ${(data.managerInfo.managerPoints / data.managerInfo.currentGameweek).toFixed(1)} Points</p>
-                              <p class="text-gray-600"><strong>Total Captain Points:</strong> ${data.managerInfo.totalCaptaincyPoints}</p>
-                              <p class="text-gray-600"><strong>Total Points Lost on Bench:</strong> ${data.managerInfo.totalPointsLostOnBench}</p>
-                              <p class="text-gray-600"><strong>Chips Used:</strong> ${data.managerInfo.allChipsUsed}</p>
-                              
-                          </div>
-                          <div class="space-y-2">
-                              <p class="text-gray-600"><strong>Overall Rank:</strong> ${data.managerInfo.overallRanking}</p>
-                              <p class="text-gray-600"><strong>Point Difference to World No 1:</strong> ${data.managerInfo.pointDifference} Points</p>
-                              <p class="text-gray-600"><strong>Lowest Scoring GW:</strong> ${data.managerInfo.lowestPoints} Points (GW${data.managerInfo.lowestPointsGW})</p>
-                              <p class="text-gray-600"><strong>Highest Scoring GW:</strong> ${data.managerInfo.highestPoints} Points (GW ${data.managerInfo.highestPointsGW})</p>
-                              <p class="text-gray-600"><strong>Highest Rank:</strong> ${data.managerInfo.highestRank} (GW${data.managerInfo.highestRankGW})</p>
-                              <p class="text-gray-600"><strong>Lowest Rank:</strong> ${data.managerInfo.lowestRank} (GW${data.managerInfo.lowestRankGW})</p>
-                              <p class="text-gray-600"><strong>2023/2024 Rank:</strong> ${data.managerInfo.lastSeasonRank}</p>
-                              <p class="text-gray-600"><strong>2022/2023 Rank:</strong> ${data.managerInfo.seasonBeforeLastRank}</p>
-                              </div>
-                      </div>
-                  </div>
-            `;
-
-            // Enhanced Squad Performance Table
-            html += `
-                  <div class="bg-white rounded-lg shadow-lg p-6">
-                      <div class="flex items-center justify-between mb-4">
-                          <h3 class="text-2xl font-bold text-gray-800">Squad Performance</h2>
-                          <p class="text-xs text-gray-600">${data.managerInfo.name}</p>
-                          <div class="flex items-center gap-4">
-                              <span class="text-gray-600">Filter by position:</span>
-                              <select id="positionFilter" class="px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                  <option value="All">All</option>
-                                  <option value="GKP">GKP</option>
-                                  <option value="DEF">DEF</option>
-                                  <option value="MID">MID</option>
-                                  <option value="FWD">FWD</option>
-                              </select>
-                          </div>
-                      </div>
-                      <div class="overflow-x-auto">
-                          <table class="min-w-full bg-white border rounded-lg">
-                              <thead class="bg-gray-50">
-                                  <tr>
-                                      <th class="sticky-column px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Player Name</th>
-                                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Team</th>
-                                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
-                                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
-                                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Games</th>
-                                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Starts</th>
-                                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Captain Points</th>
-                                  </tr>
-                              </thead>
-                              <tbody class="bg-white divide-y divide-gray-200">
-                  `;
-
-            // Sort players by total points in descending order
-            const sortedPlayers = [...data.playerStats].sort((a, b) => b.totalPointsActive - a.totalPointsActive);
-
-            sortedPlayers.forEach((player, index) => {
-                html += `
-                    <tr
-                      class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-100 transition-colors duration-200">
-                        <td class="sticky-column px-6 py-4 text-sm font-medium text-gray-900 bg-white">
-                          ${player.name} (${player.totalPointsActive} pts)
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-500">${player.team}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500">${player.position}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500">${player.totalPointsActive}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500">${player.gwInSquad}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500">${player.starts}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500">${player.cappedPoints}</td>
-                    </tr>
-                `;
-            });
-
-            html += `
-                              </tbody>
-                          </table>
-                      </div>
-                  </div>
-            `;
-
-            // Position Summary Card
-            const positionSummary = {
-                GKP: 0,
-                DEF: 0,
-                MID: 0,
-                FWD: 0
-            };
-
-            sortedPlayers.forEach(player => {
-                positionSummary[player.position] += player.totalPointsActive;
-            });
-
-            html += `
-                <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Position Summary</h3>
-                    <p class="text-xs text-gray-600 mb-2">${data.managerInfo.name}</p>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="p-4 bg-gray-50 rounded-lg">
-                            <p class="text-lg font-semibold text-gray-800">GKP</p>
-                            <p class="text-2xl font-bold text-blue-600">${positionSummary.GKP} pts</p>
-                        </div>
-                        <div class="p-4 bg-gray-50 rounded-lg">
-                            <p class="text-lg font-semibold text-gray-800">DEF</p>
-                            <p class="text-2xl font-bold text-blue-600">${positionSummary.DEF} pts</p>
-                        </div>
-                        <div class="p-4 bg-gray-50 rounded-lg">
-                            <p class="text-lg font-semibold text-gray-800">MID</p>
-                            <p class="text-2xl font-bold text-blue-600">${positionSummary.MID} pts</p>
-                        </div>
-                        <div class="p-4 bg-gray-50 rounded-lg">
-                            <p class="text-lg font-semibold text-gray-800">FWD</p>
-                            <p class="text-2xl font-bold text-blue-600">${positionSummary.FWD} pts</p>
-                        </div>
-                    </div>
+            resultsDiv.innerHTML = `
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Manager Details</h2>
+                    <p><strong>Name:</strong> ${data.managerName}</p>
+                    <p><strong>Team Name:</strong> ${data.teamName}</p>
                 </div>
             `;
-
-            resultsDiv.innerHTML = html;
-
-            // Add event listener to position filter
-            const positionFilter = document.getElementById('positionFilter');
-            positionFilter.addEventListener('change', filterPlayerStats);
-        }
-
-        function filterPlayerStats() {
-            const positionFilter = document.getElementById('positionFilter').value;
-            const playerRows = document.querySelectorAll('#results table tbody tr');
-
-            playerRows.forEach(row => {
-                const position = row.children[2].textContent;
-                if (positionFilter === 'All' || position === positionFilter) {
-                    row.style.display = 'table-row';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
         }
 
         function createCharts(weeklyPoints, weeklyRanks) {
-            createPointsChart(weeklyPoints);
-            createRankChart(weeklyRanks);
-        }
+            const pointsChartCanvas = document.getElementById('pointsChart').getContext('2d');
+            const rankChartCanvas = document.getElementById('rankChart').getContext('2d');
 
-        function createPointsChart(weeklyPoints) {
-            const ctx = document.getElementById('pointsChart').getContext('2d');
+            // Create points chart
             if (pointsChart) pointsChart.destroy();
-            
-            pointsChart = new Chart(ctx, {
+            pointsChart = new Chart(pointsChartCanvas, {
                 type: 'line',
                 data: {
-                    labels: weeklyPoints.map((_, i) => `GW${i + 1}`),
+                    labels: weeklyPoints.map((_, index) => `GW${index + 1}`),
                     datasets: [{
                         label: 'Points',
                         data: weeklyPoints,
-                        borderColor: 'rgb(59, 130, 246)',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    }],
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true } }
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Create rank chart
+            if (rankChart) rankChart.destroy();
+            rankChart = new Chart(rankChartCanvas, {
+                type: 'line',
+                data: {
+                    labels: weeklyRanks.map((_, index) => `GW${index + 1}`),
+                    datasets: [{
+                        label: 'Rank',
+                        data: weeklyRanks,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
                 }
             });
         }
 
-        function createRankChart(weeklyRanks) {
-            const ctx = document.getElementById('rankChart').getContext('2d');
-            if (rankChart) rankChart.destroy();
-            
-            rankChart = new Chart(ctx, {
-                type: 'line',
+        // Function to create performance chart
+        function createPerformanceChart(playerPerformance) {
+            const performanceChartCanvas = document.getElementById('performanceChart').getContext('2d');
+
+            if (performanceChart) performanceChart.destroy();
+            performanceChart = new Chart(performanceChartCanvas, {
+                type: 'bar',
                 data: {
-                    labels: weeklyRanks.map((_, i) => `GW${i + 1}`),
+                    labels: playerPerformance.map(player => player.name),
                     datasets: [{
-                        label: 'Rank',
-                        data: weeklyRanks,
-                        borderColor: 'rgb(239, 68, 68)',
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
+                        label: 'Total Points (Last 5 Fixtures)',
+                        data: playerPerformance.map(player => player.totalPoints),
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                    }],
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { reverse: true, beginAtZero: true } }
+                    scales: {
+                        x: { beginAtZero: true },
+                        y: { beginAtZero: true }
+                    }
                 }
             });
         }
 
         function shareApp() {
-            const url = window.location.href;
-            navigator.share ? navigator.share({ url, text: "Check out this FPL Manager stats app!", title: "FPL Manager Stats" }) : alert("Sharing not supported on this device.");
+            const shareData = {
+                title: 'FPL Team Performance Analyzer',
+                text: 'Check out my FPL manager stats!',
+                url: window.location.href
+            };
+            navigator.share(shareData)
+                .then(() => console.log('Share successful'))
+                .catch((error) => console.log('Error sharing:', error));
         }
     </script>
 </body>
