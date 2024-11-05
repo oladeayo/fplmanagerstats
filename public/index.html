@@ -68,6 +68,14 @@
             </div>
         </div>
 
+        <!-- Last 3 GW Performance Card -->
+        <div id="last3GWPerformance" class="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-6 hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Last 3 Gameweeks Performance</h2>
+            <div class="relative h-[400px]">
+                <canvas id="last3GWChart"></canvas>
+            </div>
+        </div>
+
          <!-- Current Team & Fixtures Card -->
          <div id="currentTeamFixtures" class="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-6 hidden">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Upcoming Fixtures</h2>
@@ -107,13 +115,14 @@
     <script>
         let pointsChart = null;
         let rankChart = null;
-        let last5GWChart = null;
+        let last3GWChart = null;
 
         async function analyzeManager() {
             const managerId = document.getElementById('managerId').value;
             const resultsDiv = document.getElementById('results');
             const chartsDiv = document.getElementById('charts');
             const currentTeamFixtures = document.getElementById('currentTeamFixtures');
+            const last3GWPerformance = document.getElementById('last3GWPerformance');
 
             // Display loading spinner
             resultsDiv.innerHTML = `
@@ -123,6 +132,7 @@
             `;
             chartsDiv.classList.add('hidden');
             currentTeamFixtures.classList.add('hidden');
+            last3GWPerformance.classList.add('hidden');
 
             try {
                 const response = await fetch(`/api/analyze-manager/${managerId}`);
@@ -131,10 +141,12 @@
                 const data = await response.json();
                 populateResults(data);
                 createCharts(data.weeklyPoints, data.weeklyRanks);
+                createLast3GWChart(data.currentTeam);
                 populateFixtures(data.currentTeam);
 
                 chartsDiv.classList.remove('hidden');
                 currentTeamFixtures.classList.remove('hidden');
+                last3GWPerformance.classList.remove('hidden');
             } catch (error) {
                 resultsDiv.innerHTML = `
                     <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
@@ -146,6 +158,7 @@
                 `;
                 chartsDiv.classList.add('hidden');
                 currentTeamFixtures.classList.add('hidden');
+                last3GWPerformance.classList.add('hidden');
             }
         }
 
@@ -174,6 +187,48 @@
                     `).join('')}
                 </tr>
             `).join('');
+        }
+
+        function createLast3GWChart(teamData) {
+            const ctx = document.getElementById('last3GWChart').getContext('2d');
+            if (last5GWChart) last5GWChart.destroy();
+
+            // Sort players by last 3 GW points in descending order
+            const sortedPlayers = [...teamData]
+                .sort((a, b) => b.last3GWPoints - a.last3GWPoints);
+
+            last5GWChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sortedPlayers.map(player => player.name),
+                    datasets: [{
+                        label: 'Last 3 GW Points',
+                        data: sortedPlayers.map(player => player.last3GWPoints),
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Points'
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         function populateResults(data) {
