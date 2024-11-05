@@ -191,13 +191,13 @@
 
         function createLast3GWChart(teamData) {
             const ctx = document.getElementById('last3GWChart').getContext('2d');
-            if (last5GWChart) last5GWChart.destroy();
+            if (last3GWChart) last3GWChart.destroy();
 
             // Sort players by last 3 GW points in descending order
             const sortedPlayers = [...teamData]
                 .sort((a, b) => b.last3GWPoints - a.last3GWPoints);
 
-            last5GWChart = new Chart(ctx, {
+            last3GWChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: sortedPlayers.map(player => player.name),
