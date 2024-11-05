@@ -262,42 +262,6 @@
                   </div>
             `;
 
-            // Total Performance by Position
-            html += `
-                  <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
-                      <h2 class="text-2xl font-bold text-gray-800 mb-4">Performance by Position</h2>
-                      <div class="overflow-x-auto">
-                          <table class="min-w-full bg-white border rounded-lg">
-                              <thead class="bg-gray-50">
-                                  <tr>
-                                      <th class="sticky-column px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Position</th>
-                                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Points</th>
-                                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Average Points</th>
-                                  </tr>
-                              </thead>
-                              <tbody class="bg-white divide-y divide-gray-200">
-                  `;
-
-            data.positionStats.forEach((position, index) => {
-                html += `
-                    <tr
-                      class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-100 transition-colors duration-200">
-                        <td class="sticky-column px-6 py-4 text-sm font-medium text-gray-900 bg-white">
-                          ${position.position}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-500">${position.totalPoints}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500">${position.averagePoints}</td>
-                    </tr>
-                `;
-            });
-
-            html += `
-                              </tbody>
-                          </table>
-                      </div>
-                  </div>
-            `;
-
             resultsDiv.innerHTML = html;
 
             // Add event listener to position filter
