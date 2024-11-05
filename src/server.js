@@ -224,13 +224,6 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
       currentTeam
     };
 
-    // Calculate last 3 gameweeks points and ranks
-    const last3GWPoints = weeklyPoints.slice(-3);
-    const last3GWRanks = weeklyRanks.slice(-3);
-
-    analysis.last3GWPoints = last3GWPoints;
-    analysis.last3GWRanks = last3GWRanks;
-
     res.json(analysis);
   } catch (error) {
     console.error('Error analyzing manager:', error);
