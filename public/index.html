@@ -1,7 +1,9 @@
 <script>
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-</script>
-<!DOCTYPE html>
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+
+  <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -11,14 +13,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <link rel="icon" href="football.ico" type="image/x-icon">
-    <style>
-        .sticky-column {
-            position: sticky;
-            left: 0;
-            z-index: 10;
-            background-color: white;
-        }
-    </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
 
@@ -48,7 +42,6 @@
         <!-- Results Section -->
         <div id="results" class="max-w-4xl mx-auto space-y-6"></div>
 
-
         <!-- Charts Section -->
         <div id="charts" class="max-w-4xl mx-auto mt-8 space-y-6 hidden">
             <!-- Points Chart -->
@@ -65,24 +58,6 @@
                 <div class="relative h-[300px] md:h-[400px]">
                     <canvas id="rankChart"></canvas>
                 </div>
-            </div>
-        </div>
-
-         <!-- Current Team & Fixtures Card -->
-         <div id="currentTeamFixtures" class="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-6 hidden">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Upcoming Fixtures</h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full">
-                    <thead>
-                        <tr>
-                            <th class="sticky-column px-4 py-2 text-left">Player</th>
-                            <th class="px-4 py-2 text-center" colspan="5">Next 5 Fixtures</th>
-                        </tr>
-                    </thead>
-                    <tbody id="fixturesBody">
-                        <!-- Populated by JavaScript -->
-                    </tbody>
-                </table>
             </div>
         </div>
 
@@ -112,7 +87,6 @@
             const managerId = document.getElementById('managerId').value;
             const resultsDiv = document.getElementById('results');
             const chartsDiv = document.getElementById('charts');
-            const currentTeamFixtures = document.getElementById('currentTeamFixtures');
 
             // Display loading spinner
             resultsDiv.innerHTML = `
@@ -121,7 +95,6 @@
                 </div>
             `;
             chartsDiv.classList.add('hidden');
-            currentTeamFixtures.classList.add('hidden');
 
             try {
                 const response = await fetch(`/api/analyze-manager/${managerId}`);
@@ -130,10 +103,8 @@
                 const data = await response.json();
                 populateResults(data);
                 createCharts(data.weeklyPoints, data.weeklyRanks);
-                populateFixtures(data.currentTeam);
 
                 chartsDiv.classList.remove('hidden');
-                currentTeamFixtures.classList.remove('hidden');
             } catch (error) {
                 resultsDiv.innerHTML = `
                     <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
@@ -144,35 +115,7 @@
                     </div>
                 `;
                 chartsDiv.classList.add('hidden');
-                currentTeamFixtures.classList.add('hidden');
             }
-        }
-
-        function getFDRColor(difficulty) {
-            const colors = {
-                1: '#00FF00',  // Green
-                2: '#7FFF00',  // Light Green
-                3: '#E5E4E2',  // Gray
-                4: '#FF5733',  // Red-Orange
-                5: '#cc0000'   // Orange-Red
-            };
-            return `background-color: ${colors[difficulty] || '#E5E4E2'}`;
-        }
-
-        function populateFixtures(teamData) {
-            const fixturesBody = document.getElementById('fixturesBody');
-            fixturesBody.innerHTML = teamData.map(player => `
-                <tr class="border-t">
-                    <td class="sticky-column px-4 py-2">${player.name}</td>
-                    ${player.nextFixtures.map(fixture => `
-                        <td class="px-2 py-2">
-                            <div style="${getFDRColor(fixture.difficulty)}" class="text-xs rounded p-1 text-center">
-                                ${fixture.opponent} (${fixture.isHome ? 'H' : 'A'})
-                            </div>
-                        </td>
-                    `).join('')}
-                </tr>
-            `).join('');
         }
 
         function populateResults(data) {
@@ -226,7 +169,7 @@
                           <table class="min-w-full bg-white border rounded-lg">
                               <thead class="bg-gray-50">
                                   <tr>
-                                      <th class="sticky-column px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Player Name</th>
+                                      <th class="sticky left-0 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50 z-10">Player Name</th>
                                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Team</th>
                                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
                                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
@@ -242,7 +185,7 @@
                 html += `
                     <tr
                       class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-100 transition-colors duration-200">
-                        <td class="sticky-column px-6 py-4 text-sm font-medium text-gray-900 bg-white">
+                        <td class="sticky left-0 px-6 py-4 text-sm font-medium text-gray-900 bg-white z-10">
                           ${player.name}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-500">${player.team}</td>
@@ -338,10 +281,10 @@
             });
         }
   
-        function shareApp() {
-            const url = window.location.href;
-            navigator.share ? navigator.share({ url, text: "Check out this FPL Manager stats app!", title: "FPL Manager Stats" }) : alert("Sharing not supported on this device.");
-        }
-    </script>
-</body>
-</html>
+          function shareApp() {
+              const url = window.location.href;
+              navigator.share ? navigator.share({ url, text: "Check out this FPL Manager stats app!", title: "FPL Manager Stats" }) : alert("Sharing not supported on this device.");
+          }
+      </script>
+  </body>
+  </html>
