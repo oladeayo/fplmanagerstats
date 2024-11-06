@@ -95,13 +95,13 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
         };
       });
 
-      // Calculate total points for the last 5 fixtures
-      const totalPoints = fixturesResponse.data.history.slice(-5).reduce((sum, game) => sum + game.total_points, 0);
+      // Calculate points for last 3 gameweeks
+      const last3GWPoints = fixturesResponse.data.history.slice(-3).reduce((sum, game) => sum + game.total_points, 0);
 
       currentTeam.push({
         name: player.web_name,
         nextFixtures,
-        totalPoints // Include totalPoints here
+        last3GWPoints
       });
     }
 
@@ -226,8 +226,7 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
       })),
       weeklyPoints,
       weeklyRanks,
-      currentTeam, // Include currentTeam with player performance
-      playerPerformance: currentTeam // Send player performance data to the front end
+      currentTeam
     };
 
     res.json(analysis);
