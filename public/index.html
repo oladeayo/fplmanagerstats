@@ -37,9 +37,9 @@
                 <input type="text" 
                        id="managerId" 
                        placeholder="Enter Manager ID" 
-                       class="w-full px-6 py-4 text-lg border rounded-xl border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
+                       class="w-full px-6 py-4 text-lg border rounded-xl border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition duration-300">
                 <button onclick="analyzeManager()" 
-                        class="mt-6 w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 transition duration-300 shadow-lg">
+                        class="mt-6 w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 transition duration-300 transform hover:-translate-y-1">
                     <i class="fas fa-search text-xl"></i> Analyze Stats
                 </button>
             </div>
@@ -50,24 +50,9 @@
 
         <!-- Position Summary Card -->
         <div id="positionSummary" class="max-w-6xl mx-auto mt-8 bg-white rounded-2xl shadow-lg p-8 hidden">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">Summary by Position</h2>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl">
-                    <h3 class="text-lg font-semibold text-green-800 mb-3">Goalkeepers</h3>
-                    <div id="gkpSummary" class="space-y-2"></div>
-                </div>
-                <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl">
-                    <h3 class="text-lg font-semibold text-blue-800 mb-3">Defenders</h3>
-                    <div id="defSummary" class="space-y-2"></div>
-                </div>
-                <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl">
-                    <h3 class="text-lg font-semibold text-purple-800 mb-3">Midfielders</h3>
-                    <div id="midSummary" class="space-y-2"></div>
-                </div>
-                <div class="bg-gradient-to-br from-red-50 to-red-100 p-6 rounded-xl">
-                    <h3 class="text-lg font-semibold text-red-800 mb-3">Forwards</h3>
-                    <div id="fwdSummary" class="space-y-2"></div>
-                </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Position Summary</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                <!-- Populated by JavaScript -->
             </div>
         </div>
 
@@ -90,15 +75,15 @@
             </div>
         </div>
 
-         <!-- Current Team & Fixtures Card -->
-         <div id="currentTeamFixtures" class="max-w-6xl mx-auto mt-8 bg-white rounded-2xl shadow-lg p-8 hidden">
+        <!-- Current Team & Fixtures Card -->
+        <div id="currentTeamFixtures" class="max-w-6xl mx-auto mt-8 bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition duration-300 hidden">
             <h2 class="text-2xl font-bold text-gray-800 mb-6">Upcoming Fixtures</h2>
             <div class="overflow-x-auto">
                 <table class="min-w-full">
                     <thead>
                         <tr>
-                            <th class="sticky-column px-4 py-2 text-left font-bold">Player</th>
-                            <th class="px-4 py-2 text-center font-bold" colspan="5">Next 5 Fixtures</th>
+                            <th class="sticky-column px-6 py-3 text-left text-sm font-semibold text-gray-600">Player</th>
+                            <th class="px-6 py-3 text-center text-sm font-semibold text-gray-600" colspan="5">Next 5 Fixtures</th>
                         </tr>
                     </thead>
                     <tbody id="fixturesBody">
@@ -109,7 +94,7 @@
         </div>
 
         <!-- Last 3 GWs Performance -->
-        <div id="last3GWs" class="max-w-6xl mx-auto mt-8 bg-white rounded-2xl shadow-lg p-8 hidden">
+        <div id="last3GWs" class="max-w-6xl mx-auto mt-8 bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition duration-300 hidden">
             <h2 class="text-2xl font-bold text-gray-800 mb-6">Last 3 Gameweeks Performance</h2>
             <div class="relative h-[400px]">
                 <canvas id="last3GWsChart"></canvas>
@@ -119,15 +104,15 @@
         <!-- Share Button -->
         <div class="flex justify-center mt-12">
             <button onclick="shareApp()" 
-                    class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-xl flex items-center gap-3 transition duration-300 shadow-lg">
+                    class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-xl flex items-center gap-3 transition duration-300 transform hover:-translate-y-1">
                 <i class="fas fa-share-alt text-xl"></i> Share
             </button>
         </div>
 
         <!-- Footer Section -->
         <div class="text-center mt-16">
-            <p class="text-gray-600 text-lg">Created by 
-                <a href="https://twitter.com/Oladeeayo" target="_blank" class="text-blue-600 font-bold hover:underline">
+            <p class="text-gray-600">Created by 
+                <a href="https://twitter.com/Oladeeayo" target="_blank" class="text-blue-500 font-medium hover:underline">
                     Oladeeayo
                 </a>
             </p>
@@ -144,8 +129,8 @@
             const resultsDiv = document.getElementById('results');
             const chartsDiv = document.getElementById('charts');
             const currentTeamFixtures = document.getElementById('currentTeamFixtures');
-            const positionSummary = document.getElementById('positionSummary');
-            const last3GWs = document.getElementById('last3GWs');
+            const positionSummaryDiv = document.getElementById('positionSummary');
+            const last3GWsDiv = document.getElementById('last3GWs');
 
             // Display loading spinner
             resultsDiv.innerHTML = `
@@ -155,8 +140,8 @@
             `;
             chartsDiv.classList.add('hidden');
             currentTeamFixtures.classList.add('hidden');
-            positionSummary.classList.add('hidden');
-            last3GWs.classList.add('hidden');
+            positionSummaryDiv.classList.add('hidden');
+            last3GWsDiv.classList.add('hidden');
 
             try {
                 const response = await fetch(`/api/analyze-manager/${managerId}`);
@@ -166,48 +151,143 @@
                 populateResults(data);
                 createCharts(data.weeklyPoints, data.weeklyRanks);
                 populateFixtures(data.currentTeam);
-                populatePositionSummary(data.playerStats);
+                populatePositionSummary(data.positionSummary);
                 createLast3GWsChart(data.currentTeam);
 
                 chartsDiv.classList.remove('hidden');
                 currentTeamFixtures.classList.remove('hidden');
-                positionSummary.classList.remove('hidden');
-                last3GWs.classList.remove('hidden');
+                positionSummaryDiv.classList.remove('hidden');
+                last3GWsDiv.classList.remove('hidden');
             } catch (error) {
                 resultsDiv.innerHTML = `
                     <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-xl">
                         <div class="flex items-center">
-                            <i class="fas fa-exclamation-circle text-red-500 text-2xl mr-4"></i>
-                            <p class="text-red-700 font-semibold text-lg">${error.message}</p>
+                            <i class="fas fa-exclamation-circle text-red-500 text-xl mr-3"></i>
+                            <p class="text-red-700 font-medium">${error.message}</p>
                         </div>
                     </div>
                 `;
                 chartsDiv.classList.add('hidden');
                 currentTeamFixtures.classList.add('hidden');
-                positionSummary.classList.add('hidden');
-                last3GWs.classList.add('hidden');
+                positionSummaryDiv.classList.add('hidden');
+                last3GWsDiv.classList.add('hidden');
             }
+        }
+
+        function populateResults(data) {
+            const resultsDiv = document.getElementById('results');
+            let html = `
+                <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition duration-300">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Manager's Summary</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <p class="text-gray-600"><span class="font-semibold">Name:</span> ${data.managerInfo.name}</p>
+                            <p class="text-gray-600"><span class="font-semibold">Team Name:</span> ${data.managerInfo.teamName}</p>
+                            <p class="text-gray-600"><span class="font-semibold">Current Gameweek:</span> GW ${data.managerInfo.currentGameweek}</p>
+                            <p class="text-gray-600"><span class="font-semibold">Total Points:</span> ${data.managerInfo.managerPoints} Points</p>
+                            <p class="text-gray-600"><span class="font-semibold">Average Points Per GW:</span> ${(data.managerInfo.managerPoints / data.managerInfo.currentGameweek).toFixed(1)} Points</p>
+                            <p class="text-gray-600"><span class="font-semibold">Total Captain Points:</span> ${data.managerInfo.totalCaptaincyPoints}</p>
+                            <p class="text-gray-600"><span class="font-semibold">Total Points Lost on Bench:</span> ${data.managerInfo.totalPointsLostOnBench}</p>
+                            <p class="text-gray-600"><span class="font-semibold">Chips Used:</span> ${data.managerInfo.allChipsUsed}</p>
+                        </div>
+                        <div class="space-y-4">
+                            <p class="text-gray-600"><span class="font-semibold">Overall Rank:</span> ${data.managerInfo.overallRanking}</p>
+                            <p class="text-gray-600"><span class="font-semibold">Point Difference to World No 1:</span> ${data.managerInfo.pointDifference} Points</p>
+                            <p class="text-gray-600"><span class="font-semibold">Lowest Scoring GW:</span> ${data.managerInfo.lowestPoints} Points (GW${data.managerInfo.lowestPointsGW})</p>
+                            <p class="text-gray-600"><span class="font-semibold">Highest Scoring GW:</span> ${data.managerInfo.highestPoints} Points (GW ${data.managerInfo.highestPointsGW})</p>
+                            <p class="text-gray-600"><span class="font-semibold">Highest Rank:</span> ${data.managerInfo.highestRank} (GW${data.managerInfo.highestRankGW})</p>
+                            <p class="text-gray-600"><span class="font-semibold">Lowest Rank:</span> ${data.managerInfo.lowestRank} (GW${data.managerInfo.lowestRankGW})</p>
+                            <p class="text-gray-600"><span class="font-semibold">2023/2024 Rank:</span> ${data.managerInfo.lastSeasonRank}</p>
+                            <p class="text-gray-600"><span class="font-semibold">2022/2023 Rank:</span> ${data.managerInfo.seasonBeforeLastRank}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition duration-300">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Squad Performance</h2>
+                        <div class="flex items-center gap-4">
+                            <span class="text-gray-600">Filter by position:</span>
+                            <select id="positionFilter" class="px-4 py-2 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="All">All</option>
+                                <option value="GKP">GKP</option>
+                                <option value="DEF">DEF</option>
+                                <option value="MID">MID</option>
+                                <option value="FWD">FWD</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white rounded-xl">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="sticky-column px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Player Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Team</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Games</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Starts</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Captain Points</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                ${data.playerStats.map((player, index) => `
+                                    <tr class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-100 transition-colors duration-200">
+                                        <td class="sticky-column px-6 py-4 text-sm font-medium text-gray-900 bg-white">${player.name}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-500">${player.team}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-500">${player.position}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-500">${player.totalPointsActive}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-500">${player.gwInSquad}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-500">${player.starts}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-500">${player.cappedPoints}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            resultsDiv.innerHTML = html;
+
+            // Add event listener to position filter
+            const positionFilter = document.getElementById('positionFilter');
+            positionFilter.addEventListener('change', filterPlayerStats);
+        }
+
+        function filterPlayerStats() {
+            const positionFilter = document.getElementById('positionFilter').value;
+            const playerRows = document.querySelectorAll('#results table tbody tr');
+
+            playerRows.forEach(row => {
+                const position = row.children[2].textContent;
+                if (positionFilter === 'All' || position === positionFilter) {
+                    row.style.display = 'table-row';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
         }
 
         function getFDRColor(difficulty) {
             const colors = {
-                1: '#00FF00',  // Green
-                2: '#7FFF00',  // Light Green
-                3: '#E5E4E2',  // Gray
-                4: '#FF5733',  // Red-Orange
-                5: '#cc0000'   // Orange-Red
+                1: '#22c55e',  // Green
+                2: '#84cc16',  // Light Green
+                3: '#cbd5e1',  // Gray
+                4: '#f97316',  // Orange
+                5: '#ef4444'   // Red
             };
-            return `background-color: ${colors[difficulty] || '#E5E4E2'}`;
+            return `background-color: ${colors[difficulty] || '#cbd5e1'}`;
         }
 
         function populateFixtures(teamData) {
             const fixturesBody = document.getElementById('fixturesBody');
             fixturesBody.innerHTML = teamData.map(player => `
-                <tr class="border-t">
-                    <td class="sticky-column px-4 py-2">${player.name}</td>
+                <tr class="border-t hover:bg-gray-50 transition-colors duration-200">
+                    <td class="sticky-column px-6 py-4 text-sm font-medium text-gray-900 bg-white">${player.name}</td>
                     ${player.nextFixtures.map(fixture => `
-                        <td class="px-2 py-2">
-                            <div style="${getFDRColor(fixture.difficulty)}" class="text-xs rounded p-1 text-center">
+                        <td class="px-4 py-4">
+                            <div style="${getFDRColor(fixture.difficulty)}" class="text-sm rounded-lg p-2 text-center">
                                 ${fixture.opponent} (${fixture.isHome ? 'H' : 'A'})
                             </div>
                         </td>
@@ -216,60 +296,113 @@
             `).join('');
         }
 
-        function populateResults(data) {
-            // ... (keep existing populateResults function) ...
-        }
+        function populatePositionSummary(positionData) {
+            const summaryDiv = document.getElementById('positionSummary');
+            const positionColors = {
+                GKP: 'from-yellow-400 to-yellow-500',
+                DEF: 'from-blue-400 to-blue-500',
+                MID: 'from-green-400 to-green-500',
+                FWD: 'from-red-400 to-red-500'
+            };
 
-        function filterPlayerStats() {
-            // ... (keep existing filterPlayerStats function) ...
+            const gridContent = positionData.map(pos => `
+                <div class="bg-gradient-to-br ${positionColors[pos.position]} rounded-xl p-6 text-white transform hover:scale-105 transition duration-300">
+                    <h3 class="text-xl font-bold mb-2">${pos.position}</h3>
+                    <p class="text-3xl font-bold">${pos.totalPoints}</p>
+                    <p class="text-sm opacity-90">Total Points</p>
+                </div>
+            `).join('');
+
+            summaryDiv.querySelector('.grid').innerHTML = gridContent;
+            summaryDiv.classList.remove('hidden');
         }
 
         function createCharts(weeklyPoints, weeklyRanks) {
-            // ... (keep existing createCharts function) ...
+            createPointsChart(weeklyPoints);
+            createRankChart(weeklyRanks);
         }
 
         function createPointsChart(weeklyPoints) {
-            // ... (keep existing createPointsChart function) ...
+            const ctx = document.getElementById('pointsChart').getContext('2d');
+            if (pointsChart) pointsChart.destroy();
+            
+            pointsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: weeklyPoints.map((_, i) => `GW${i + 1}`),
+                    datasets: [{
+                        label: 'Points',
+                        data: weeklyPoints,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
         }
 
         function createRankChart(weeklyRanks) {
-            // ... (keep existing createRankChart function) ...
-        }
-
-        function populatePositionSummary(playerStats) {
-            const positions = {
-                GKP: { element: document.getElementById('gkpSummary'), data: { points: 0, games: 0, starts: 0, captainPoints: 0 } },
-                DEF: { element: document.getElementById('defSummary'), data: { points: 0, games: 0, starts: 0, captainPoints: 0 } },
-                MID: { element: document.getElementById('midSummary'), data: { points: 0, games: 0, starts: 0, captainPoints: 0 } },
-                FWD: { element: document.getElementById('fwdSummary'), data: { points: 0, games: 0, starts: 0, captainPoints: 0 } }
-            };
-
-            playerStats.forEach(player => {
-                const pos = positions[player.position];
-                pos.data.points += player.totalPointsActive;
-                pos.data.games += player.gwInSquad;
-                pos.data.starts += player.starts;
-                pos.data.captainPoints += player.cappedPoints;
+            const ctx = document.getElementById('rankChart').getContext('2d');
+            if (rankChart) rankChart.destroy();
+            
+            rankChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: weeklyRanks.map((_, i) => `GW${i + 1}`),
+                    datasets: [{
+                        label: 'Rank',
+                        data: weeklyRanks,
+                        borderColor: 'rgb(239, 68, 68)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { 
+                            reverse: true,
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
             });
-
-            for (const [pos, data] of Object.entries(positions)) {
-                data.element.innerHTML = `
-                    <p class="text-sm"><strong>Total Points:</strong> ${data.data.points}</p>
-                    <p class="text-sm"><strong>Games:</strong> ${data.data.games}</p>
-                    <p class="text-sm"><strong>Starts:</strong> ${data.data.starts}</p>
-                    <p class="text-sm"><strong>Captain Points:</strong> ${data.data.captainPoints}</p>
-                `;
-            }
         }
 
         function createLast3GWsChart(teamData) {
             const ctx = document.getElementById('last3GWsChart').getContext('2d');
             if (last3GWsChart) last3GWsChart.destroy();
 
-            // Calculate last 3 GWs points for each player
+            // Sort players by last 3 GWs total points
             const playerPoints = teamData.map(player => ({
                 name: player.name,
-                points: player.last3GWPoints || Math.floor(Math.random() * 20) // Fallback to random data if not provided
+                points: player.last3GWPoints || 0
             })).sort((a, b) => b.points - a.points);
 
             last3GWsChart = new Chart(ctx, {
@@ -289,29 +422,22 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         datalabels: {
+                            display: true,
+                            color: '#374151',
                             anchor: 'end',
                             align: 'right',
-                            color: '#333',
-                            font: {
-                                weight: 'bold'
-                            }
+                            font: { weight: 'bold' }
                         }
                     },
                     scales: {
-                        x: {
+                        x: { 
                             beginAtZero: true,
-                            grid: {
-                                display: false
-                            }
+                            grid: { color: 'rgba(0,0,0,0.05)' }
                         },
                         y: {
-                            grid: {
-                                display: false
-                            }
+                            grid: { display: false }
                         }
                     }
                 }
@@ -320,7 +446,13 @@
   
         function shareApp() {
             const url = window.location.href;
-            navigator.share ? navigator.share({ url, text: "Check out this FPL Manager stats app!", title: "FPL Manager Stats" }) : alert("Sharing not supported on this device.");
+            navigator.share ? 
+                navigator.share({ 
+                    url, 
+                    text: "Check out this FPL Manager stats app!", 
+                    title: "FPL Manager Stats" 
+                }) : 
+                alert("Sharing not supported on this device.");
         }
     </script>
 </body>
