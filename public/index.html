@@ -81,6 +81,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             background: #94a3b8;
             border-radius: 3px;
         }
+        .player-image {
+            padding-right: 1.5rem;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen custom-scrollbar">
@@ -93,13 +96,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="container mx-auto px-4 py-8 max-w-7xl">
         
         <!-- Header Section -->
-        <!-- Header Section -->
-<div class="text-center mb-16">
-            <h3 class="gradient-text mb-6 leading-tight">
+        <div class="text-center mb-16">
+            <h3 class="gradient-text text-4xl font-bold mb-6 leading-tight">
                 <i class="fas fa-trophy text-4xl mb-4"></i><br>
                 Check Manager Stats
             </h3>
-</div>
             <p class="text-slate-600 text-xl md:text-2xl font-medium">
                 <i class="fas fa-chart-line mr-2"></i>
                 Unlock insights into your FPL team performance
@@ -125,7 +126,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         <!-- Position Summary Card -->
         <div id="positionSummary" class="max-w-7xl mx-auto mt-10 glass-effect rounded-3xl shadow-xl p-8 hidden card-hover">
-            <h2 class="text-2xl font-bold text-slate-800 mb-8">Position Summary</h2>
+            <h2 class="text-2xl font-bold text-slate-800 mb-8"><i class="fas fa-users-viewfinder mr-2"></i>Position Summary</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
                 <!-- Populated by JavaScript -->
             </div>
@@ -135,7 +136,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div id="charts" class="max-w-7xl mx-auto mt-10 space-y-10 hidden">
             <!-- Points Chart -->
             <div class="glass-effect rounded-3xl shadow-xl p-8 card-hover">
-                <h2 class="text-2xl font-bold text-slate-800 mb-8">Points Per Gameweek</h2>
+                <h2 class="text-2xl font-bold text-slate-800 mb-8"><i class="fas fa-chart-line mr-2"></i>Points Per Gameweek</h2>
                 <div class="relative h-[400px]">
                     <canvas id="pointsChart"></canvas>
                 </div>
@@ -143,7 +144,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
             <!-- Rank Chart -->
             <div class="glass-effect rounded-3xl shadow-xl p-8 card-hover">
-                <h2 class="text-2xl font-bold text-slate-800 mb-8">Rank Per Gameweek</h2>
+                <h2 class="text-2xl font-bold text-slate-800 mb-8"><i class="fas fa-ranking-star mr-2"></i>Rank Per Gameweek</h2>
                 <div class="relative h-[400px]">
                     <canvas id="rankChart"></canvas>
                 </div>
@@ -152,7 +153,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         <!-- Current Team & Fixtures Card -->
         <div id="currentTeamFixtures" class="max-w-7xl mx-auto mt-10 glass-effect rounded-3xl shadow-xl p-8 card-hover hidden">
-            <h2 class="text-2xl font-bold text-slate-800 mb-8">Upcoming Fixtures</h2>
+            <h2 class="text-2xl font-bold text-slate-800 mb-8"><i class="fas fa-calendar-days mr-2"></i>Upcoming Fixtures</h2>
             <div class="overflow-x-auto responsive-table">
                 <table class="min-w-full">
                     <thead>
@@ -170,7 +171,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         <!-- Last 3 GWs Performance -->
         <div id="last3GWs" class="max-w-7xl mx-auto mt-10 glass-effect rounded-3xl shadow-xl p-8 card-hover hidden">
-            <h2 class="text-2xl font-bold text-slate-800 mb-8">Last 3 Gameweeks Performance</h2>
+            <h2 class="text-2xl font-bold text-slate-800 mb-8"><i class="fas fa-chart-bar mr-2"></i>Last 3 Gameweeks Performance</h2>
             <div class="relative h-[400px]">
                 <canvas id="last3GWsChart"></canvas>
             </div>
@@ -180,7 +181,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="flex justify-center mt-16">
             <button onclick="shareApp()" 
                     class="bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 hover:from-blue-600 hover:via-blue-700 hover:to-indigo-700 text-white font-bold py-4 px-10 rounded-2xl flex items-center gap-3 transition duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl">
-                <i class="fas fa-share-alt text-xl"></i> Share App
+                <i class="fas fa-share-alt text-xl"></i> Share
             </button>
         </div>
 
@@ -226,7 +227,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 populateResults(data);
                 createCharts(data.weeklyPoints, data.weeklyRanks);
                 populateFixtures(data.currentTeam);
-                populatePositionSummary(data.positionSummary);
+                populatePositionSummary(data.positionSummary, data.playerStats);
                 createLast3GWsChart(data.currentTeam);
 
                 chartsDiv.classList.remove('hidden');
@@ -253,7 +254,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const resultsDiv = document.getElementById('results');
             let html = `
                 <div class="glass-effect rounded-3xl shadow-xl p-8 card-hover">
-                    <h2 class="text-2xl font-bold text-slate-800 mb-8">Manager's Summary</h2>
+                    <h2 class="text-2xl font-bold text-slate-800 mb-8"><i class="fas fa-user-shield mr-2"></i>Manager's Summary</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div class="space-y-4">
                             <p class="text-slate-600"><span class="font-semibold">Name:</span> ${data.managerInfo.name}</p>
@@ -280,7 +281,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                 <div class="glass-effect rounded-3xl shadow-xl p-8 card-hover">
                     <div class="flex flex-col md:flex-row items-center justify-between mb-8">
-                        <h2 class="text-2xl font-bold text-slate-800 mb-4 md:mb-0">Squad Performance</h2>
+                        <h2 class="text-2xl font-bold text-slate-800 mb-4 md:mb-0"><i class="fas fa-users mr-2"></i>Squad Performance</h2>
                         <div class="flex items-center gap-4">
                             <span class="text-slate-600">Filter by position:</span>
                             <select id="positionFilter" class="px-4 py-2 bg-white/50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400">
@@ -371,7 +372,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             `).join('');
         }
 
-        function populatePositionSummary(positionData) {
+        function populatePositionSummary(positionData, playerStats) {
             const summaryDiv = document.getElementById('positionSummary');
             const positionColors = {
                 GKP: 'from-amber-400 to-amber-500',
@@ -380,11 +381,37 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 FWD: 'from-rose-400 to-rose-500'
             };
 
+            // Find highest scoring player for each position
+            const highestScorers = {};
+            playerStats.forEach(player => {
+                if (!highestScorers[player.position] || 
+                    player.totalPointsActive > highestScorers[player.position].points) {
+                    highestScorers[player.position] = {
+                        name: player.name,
+                        points: player.totalPointsActive,
+                        photoId: player.photoId
+                    };
+                }
+            });
+
             const gridContent = positionData.map(pos => `
-                <div class="bg-gradient-to-br ${positionColors[pos.position]} rounded-2xl p-6 text-white transform hover:scale-105 transition duration-300 shadow-lg">
-                    <h3 class="text-xl font-bold mb-2">${pos.position}</h3>
-                    <p class="text-3xl font-bold">${pos.totalPoints}</p>
-                    <p class="text-sm opacity-90">Total Points</p>
+                <div class="bg-gradient-to-br ${positionColors[pos.position]} rounded-2xl p-6 text-white transform hover:scale-105 transition duration-300 shadow-lg relative overflow-hidden">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">${pos.position}</h3>
+                            <p class="text-3xl font-bold">${pos.totalPoints}</p>
+                            <p class="text-sm opacity-90">Total Points</p>
+                            <p class="text-sm mt-2">Top: ${highestScorers[pos.position]?.name}</p>
+                        </div>
+                        <div class="absolute right-0 top-1/2 transform -translate-y-1/2">
+                            <img 
+                                src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${highestScorers[pos.position]?.photoId}.png" 
+                                alt="${highestScorers[pos.position]?.name}"
+                                class="h-24 object-cover opacity-75 player-image"
+                                onerror="this.src='https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png'"
+                            />
+                        </div>
+                    </div>
                 </div>
             `).join('');
 
@@ -518,7 +545,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 }
             });
         }
-  
+
         function shareApp() {
             const url = window.location.href;
             navigator.share ? 
