@@ -134,7 +134,8 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
             gwInSquad: 0,
             starts: 0,
             cappedPoints: 0,
-            playerPoints: 0
+            playerPoints: 0,
+            photoId: player.code
           };
         }
 
@@ -159,7 +160,8 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
           if (!positionPoints[position][playerId]) {
             positionPoints[position][playerId] = {
               name: playerStats[playerId].name,
-              points: 0
+              points: 0,
+              photoId: player.code
             };
           }
           positionPoints[position][playerId].points += activePoints;
@@ -195,6 +197,14 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
       }
     }
 
+    // Find highest scoring player for each position
+    const highestScorers = {};
+    for (const [position, players] of Object.entries(positionPoints)) {
+      const highestScorer = Object.values(players).reduce((max, player) => 
+        player.points > (max?.points || 0) ? player : max, null);
+      highestScorers[position] = highestScorer;
+    }
+
     // Prepare the complete analysis object
     const analysis = {
       managerInfo: {
@@ -222,7 +232,8 @@ app.get('/api/analyze-manager/:managerId', async (req, res) => {
       positionSummary: Object.entries(positionPoints).map(([position, players]) => ({
         position,
         totalPoints: Object.values(players).reduce((sum, player) => sum + player.points, 0),
-        players: Object.values(players).sort((a, b) => b.points - a.points)
+        players: Object.values(players).sort((a, b) => b.points - a.points),
+        highestScorer: highestScorers[position]
       })),
       weeklyPoints,
       weeklyRanks,
