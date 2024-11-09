@@ -6,77 +6,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Analyze your Fantasy Premier League (FPL) team performance with detailed stats and insights. Track your progress, view fixtures, and optimize your team.">
+    <meta name="keywords" content="FPL, Fantasy Premier League, FPL Stats, FPL Analysis, Football Fantasy">
+    <meta name="author" content="Oladeeayo">
+    <meta property="og:title" content="FPL Manager Stats & Insights | FPL Team Performance Analyzer">
+    <meta property="og:description" content="Get detailed analysis and insights for your Fantasy Premier League team performance">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.myfplstats.xyz">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>FPL Manager Stats & Insights | FPL Team Performance Analyzer</title>
+    
+    <!-- Google Analytics -->
+    <!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-WVJS3TZ7');</script>
+<!-- End Google Tag Manager -->
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <link rel="icon" href="football.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
         .sticky-column {
             position: sticky;
             left: 0;
             z-index: 10;
             background-color: white;
         }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        @media (max-width: 640px) {
+            .responsive-table {
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #3B82F6, #6366F1, #8B5CF6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 3px;
+        }
+        .player-image {
+            padding-right: 1.5rem;
+        }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen custom-scrollbar">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WVJS3TZ7"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 
     <!-- Main Container -->
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
         
         <!-- Header Section -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-800 mb-4">Check Manager Stats</h1>
-            <p class="text-gray-600 text-lg">View your FPL team stats with your Manager ID</p>
+        <div class="text-center mb-16">
+            <h3 class="gradient-text text-4xl font-bold mb-6 leading-tight">
+                <i class="fas fa-trophy text-4xl mb-4"></i><br>
+                Check Manager Stats
+            </h3>
+            <p class="text-slate-600 text-xl md:text-2xl font-medium">
+                <i class="fas fa-chart-line mr-2"></i>
+                Unlock insights into your FPL team performance
+            </p>
         </div>
 
         <!-- Input Section -->
-        <div class="max-w-lg mx-auto mb-8">
-            <div class="bg-white rounded-lg shadow p-6">
+        <div class="max-w-xl mx-auto mb-16">
+            <div class="glass-effect rounded-3xl shadow-xl p-8 card-hover">
                 <input type="text" 
                        id="managerId" 
                        placeholder="Enter Manager ID" 
-                       class="w-full px-4 py-3 border rounded-lg border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                       class="w-full px-6 py-4 text-lg border-2 rounded-2xl border-blue-100 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400 transition duration-300 bg-white/50">
                 <button onclick="analyzeManager()" 
-                        class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2 transition duration-200">
-                    <i class="fas fa-search"></i> Analyze Stats
+                        class="mt-6 w-full bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 hover:from-blue-600 hover:via-blue-700 hover:to-indigo-700 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-search text-xl"></i> Analyze Stats
                 </button>
             </div>
         </div>
 
         <!-- Results Section -->
-        <div id="results" class="max-w-4xl mx-auto space-y-6"></div>
+        <div id="results" class="max-w-7xl mx-auto space-y-10"></div>
 
+        <!-- Position Summary Card -->
+        <div id="positionSummary" class="max-w-7xl mx-auto mt-10 glass-effect rounded-3xl shadow-xl p-8 hidden card-hover">
+            <h2 class="text-2xl font-bold text-slate-800 mb-8"><i class="fas fa-users-viewfinder mr-2"></i>Position Summary</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
 
         <!-- Charts Section -->
-        <div id="charts" class="max-w-4xl mx-auto mt-8 space-y-6 hidden">
+        <div id="charts" class="max-w-7xl mx-auto mt-10 space-y-10 hidden">
             <!-- Points Chart -->
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">Points Per Gameweek</h2>
-                <div class="relative h-[300px] md:h-[400px]">
+            <div class="glass-effect rounded-3xl shadow-xl p-8 card-hover">
+                <h2 class="text-2xl font-bold text-slate-800 mb-8"><i class="fas fa-chart-line mr-2"></i>Points Per Gameweek</h2>
+                <div class="relative h-[400px]">
                     <canvas id="pointsChart"></canvas>
                 </div>
             </div>
 
             <!-- Rank Chart -->
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">Rank Per Gameweek</h2>
-                <div class="relative h-[300px] md:h-[400px]">
+            <div class="glass-effect rounded-3xl shadow-xl p-8 card-hover">
+                <h2 class="text-2xl font-bold text-slate-800 mb-8"><i class="fas fa-ranking-star mr-2"></i>Rank Per Gameweek</h2>
+                <div class="relative h-[400px]">
                     <canvas id="rankChart"></canvas>
                 </div>
             </div>
         </div>
 
-         <!-- Current Team & Fixtures Card -->
-         <div id="currentTeamFixtures" class="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-6 hidden">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Upcoming Fixtures</h2>
-            <div class="overflow-x-auto">
+        <!-- Current Team & Fixtures Card -->
+        <div id="currentTeamFixtures" class="max-w-7xl mx-auto mt-10 glass-effect rounded-3xl shadow-xl p-8 card-hover hidden">
+            <h2 class="text-2xl font-bold text-slate-800 mb-8"><i class="fas fa-calendar-days mr-2"></i>Upcoming Fixtures</h2>
+            <div class="overflow-x-auto responsive-table">
                 <table class="min-w-full">
                     <thead>
                         <tr>
-                            <th class="sticky-column px-4 py-2 text-left">Player</th>
-                            <th class="px-4 py-2 text-center" colspan="5">Next 5 Fixtures</th>
+                            <th class="sticky-column px-6 py-3 text-left text-sm font-semibold text-slate-600">Player</th>
+                            <th class="px-6 py-3 text-center text-sm font-semibold text-slate-600" colspan="5">Next 5 Fixtures</th>
                         </tr>
                     </thead>
                     <tbody id="fixturesBody">
@@ -86,18 +169,26 @@
             </div>
         </div>
 
+        <!-- Last 3 GWs Performance -->
+        <div id="last3GWs" class="max-w-7xl mx-auto mt-10 glass-effect rounded-3xl shadow-xl p-8 card-hover hidden">
+            <h2 class="text-2xl font-bold text-slate-800 mb-8"><i class="fas fa-chart-bar mr-2"></i>Last 3 Gameweeks Performance</h2>
+            <div class="relative h-[400px]">
+                <canvas id="last3GWsChart"></canvas>
+            </div>
+        </div>
+
         <!-- Share Button -->
-        <div class="flex justify-center mt-8">
+        <div class="flex justify-center mt-16">
             <button onclick="shareApp()" 
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg flex items-center gap-2 transition duration-200">
-                <i class="fas fa-share-alt"></i> Share
+                    class="bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 hover:from-blue-600 hover:via-blue-700 hover:to-indigo-700 text-white font-bold py-4 px-10 rounded-2xl flex items-center gap-3 transition duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl">
+                <i class="fas fa-share-alt text-xl"></i> Share App
             </button>
         </div>
 
         <!-- Footer Section -->
-        <div class="text-center mt-12">
-            <p class="text-gray-600">Created by 
-                <a href="https://twitter.com/Oladeeayo" target="_blank" class="text-blue-500 font-medium hover:underline">
+        <div class="text-center mt-20 mb-8">
+            <p class="text-slate-600">Created with ❤️ by 
+                <a href="https://twitter.com/Oladeeayo" target="_blank" class="text-blue-500 font-medium hover:text-blue-600 transition duration-300">
                     Oladeeayo
                 </a>
             </p>
@@ -107,21 +198,26 @@
     <script>
         let pointsChart = null;
         let rankChart = null;
+        let last3GWsChart = null;
 
         async function analyzeManager() {
             const managerId = document.getElementById('managerId').value;
             const resultsDiv = document.getElementById('results');
             const chartsDiv = document.getElementById('charts');
             const currentTeamFixtures = document.getElementById('currentTeamFixtures');
+            const positionSummaryDiv = document.getElementById('positionSummary');
+            const last3GWsDiv = document.getElementById('last3GWs');
 
             // Display loading spinner
             resultsDiv.innerHTML = `
-                <div class="flex justify-center items-center py-8">
-                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                <div class="flex justify-center items-center py-12">
+                    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
                 </div>
             `;
             chartsDiv.classList.add('hidden');
             currentTeamFixtures.classList.add('hidden');
+            positionSummaryDiv.classList.add('hidden');
+            last3GWsDiv.classList.add('hidden');
 
             try {
                 const response = await fetch(`/api/analyze-manager/${managerId}`);
@@ -131,135 +227,101 @@
                 populateResults(data);
                 createCharts(data.weeklyPoints, data.weeklyRanks);
                 populateFixtures(data.currentTeam);
+                populatePositionSummary(data.positionSummary, data.playerStats);
+                createLast3GWsChart(data.currentTeam);
 
                 chartsDiv.classList.remove('hidden');
                 currentTeamFixtures.classList.remove('hidden');
+                positionSummaryDiv.classList.remove('hidden');
+                last3GWsDiv.classList.remove('hidden');
             } catch (error) {
                 resultsDiv.innerHTML = `
-                    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
-                        <div class="flex">
-                            <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
-                            <p class="text-red-700 font-medium">Error: ${error.message}</p>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-xl">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-circle text-red-500 text-xl mr-3"></i>
+                            <p class="text-red-700 font-medium">${error.message}</p>
                         </div>
                     </div>
                 `;
                 chartsDiv.classList.add('hidden');
                 currentTeamFixtures.classList.add('hidden');
+                positionSummaryDiv.classList.add('hidden');
+                last3GWsDiv.classList.add('hidden');
             }
-        }
-
-        function getFDRColor(difficulty) {
-            const colors = {
-                1: '#00FF00',  // Green
-                2: '#7FFF00',  // Light Green
-                3: '#E5E4E2',  // Gray
-                4: '#FF5733',  // Red-Orange
-                5: '#cc0000'   // Orange-Red
-            };
-            return `background-color: ${colors[difficulty] || '#E5E4E2'}`;
-        }
-
-        function populateFixtures(teamData) {
-            const fixturesBody = document.getElementById('fixturesBody');
-            fixturesBody.innerHTML = teamData.map(player => `
-                <tr class="border-t">
-                    <td class="sticky-column px-4 py-2">${player.name}</td>
-                    ${player.nextFixtures.map(fixture => `
-                        <td class="px-2 py-2">
-                            <div style="${getFDRColor(fixture.difficulty)}" class="text-xs rounded p-1 text-center">
-                                ${fixture.opponent} (${fixture.isHome ? 'H' : 'A'})
-                            </div>
-                        </td>
-                    `).join('')}
-                </tr>
-            `).join('');
         }
 
         function populateResults(data) {
             const resultsDiv = document.getElementById('results');
             let html = `
-                  <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                      <h2 class="text-2xl font-bold text-gray-800 mb-4">Manager's Summary</h2>
-                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div class="space-y-2">
-                              <p class="text-gray-600"><strong>Name:</strong> ${data.managerInfo.name}</p>
-                              <p class="text-gray-600"><strong>Team Name:</strong> ${data.managerInfo.teamName}</p>
-                              <p class="text-gray-600"><strong>Current Gameweek:</strong> GW ${data.managerInfo.currentGameweek}</p>
-                              <p class="text-gray-600"><strong>Total Points:</strong> ${data.managerInfo.managerPoints} Points</p>
-                              <p class="text-gray-600"><strong>Average Points Per GW:</strong> ${(data.managerInfo.managerPoints / data.managerInfo.currentGameweek).toFixed(1)} Points</p>
-                              <p class="text-gray-600"><strong>Total Captain Points:</strong> ${data.managerInfo.totalCaptaincyPoints}</p>
-                              <p class="text-gray-600"><strong>Total Points Lost on Bench:</strong> ${data.managerInfo.totalPointsLostOnBench}</p>
-                              <p class="text-gray-600"><strong>Chips Used:</strong> ${data.managerInfo.allChipsUsed}</p>
-                              
-                          </div>
-                          <div class="space-y-2">
-                              <p class="text-gray-600"><strong>Overall Rank:</strong> ${data.managerInfo.overallRanking}</p>
-                              <p class="text-gray-600"><strong>Point Difference to World No 1:</strong> ${data.managerInfo.pointDifference} Points</p>
-                              <p class="text-gray-600"><strong>Lowest Scoring GW:</strong> ${data.managerInfo.lowestPoints} Points (GW${data.managerInfo.lowestPointsGW})</p>
-                              <p class="text-gray-600"><strong>Highest Scoring GW:</strong> ${data.managerInfo.highestPoints} Points (GW ${data.managerInfo.highestPointsGW})</p>
-                              <p class="text-gray-600"><strong>Highest Rank:</strong> ${data.managerInfo.highestRank} (GW${data.managerInfo.highestRankGW})</p>
-                              <p class="text-gray-600"><strong>Lowest Rank:</strong> ${data.managerInfo.lowestRank} (GW${data.managerInfo.lowestRankGW})</p>
-                              <p class="text-gray-600"><strong>2023/2024 Rank:</strong> ${data.managerInfo.lastSeasonRank}</p>
-                              <p class="text-gray-600"><strong>2022/2023 Rank:</strong> ${data.managerInfo.seasonBeforeLastRank}</p>
-                              </div>
-                      </div>
-                  </div>
-            `;
+                <div class="glass-effect rounded-3xl shadow-xl p-8 card-hover">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-8"><i class="fas fa-user-shield mr-2"></i>Manager's Summary</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-4">
+                            <p class="text-slate-600"><span class="font-semibold">Name:</span> ${data.managerInfo.name}</p>
+                            <p class="text-slate-600"><span class="font-semibold">Team Name:</span> ${data.managerInfo.teamName}</p>
+                            <p class="text-slate-600"><span class="font-semibold">Current Gameweek:</span> GW ${data.managerInfo.currentGameweek}</p>
+                            <p class="text-slate-600"><span class="font-semibold">Total Points:</span> ${data.managerInfo.managerPoints} Points</p>
+                            <p class="text-slate-600"><span class="font-semibold">Average Points Per GW:</span> ${(data.managerInfo.managerPoints / data.managerInfo.currentGameweek).toFixed(1)} Points</p>
+                            <p class="text-slate-600"><span class="font-semibold">Total Captain Points:</span> ${data.managerInfo.totalCaptaincyPoints}</p>
+                            <p class="text-slate-600"><span class="font-semibold">Total Points Lost on Bench:</span> ${data.managerInfo.totalPointsLostOnBench}</p>
+                            <p class="text-slate-600"><span class="font-semibold">Chips Used:</span> ${data.managerInfo.allChipsUsed}</p>
+                        </div>
+                        <div class="space-y-4">
+                            <p class="text-slate-600"><span class="font-semibold">Overall Rank:</span> ${data.managerInfo.overallRanking}</p>
+                            <p class="text-slate-600"><span class="font-semibold">Point Difference to World No 1:</span> ${data.managerInfo.pointDifference} Points</p>
+                            <p class="text-slate-600"><span class="font-semibold">Lowest Scoring GW:</span> ${data.managerInfo.lowestPoints} Points (GW${data.managerInfo.lowestPointsGW})</p>
+                            <p class="text-slate-600"><span class="font-semibold">Highest Scoring GW:</span> ${data.managerInfo.highestPoints} Points (GW ${data.managerInfo.highestPointsGW})</p>
+                            <p class="text-slate-600"><span class="font-semibold">Highest Rank:</span> ${data.managerInfo.highestRank} (GW${data.managerInfo.highestRankGW})</p>
+                            <p class="text-slate-600"><span class="font-semibold">Lowest Rank:</span> ${data.managerInfo.lowestRank} (GW${data.managerInfo.lowestRankGW})</p>
+                            <p class="text-slate-600"><span class="font-semibold">2023/2024 Rank:</span> ${data.managerInfo.lastSeasonRank}</p>
+                            <p class="text-slate-600"><span class="font-semibold">2022/2023 Rank:</span> ${data.managerInfo.seasonBeforeLastRank}</p>
+                        </div>
+                    </div>
+                </div>
 
-            // Enhanced Squad Performance Table
-            html += `
-                  <div class="bg-white rounded-lg shadow-lg p-6">
-                      <div class="flex items-center justify-between mb-4">
-                          <h3 class="text-2xl font-bold text-gray-800">Squad Performance</h2>
-                          <div class="flex items-center gap-4">
-                              <span class="text-gray-600">Filter by position:</span>
-                              <select id="positionFilter" class="px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                  <option value="All">All</option>
-                                  <option value="GKP">GKP</option>
-                                  <option value="DEF">DEF</option>
-                                  <option value="MID">MID</option>
-                                  <option value="FWD">FWD</option>
-                              </select>
-                          </div>
-                      </div>
-                      <div class="overflow-x-auto">
-                          <table class="min-w-full bg-white border rounded-lg">
-                              <thead class="bg-gray-50">
-                                  <tr>
-                                      <th class="sticky-column px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Player Name</th>
-                                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Team</th>
-                                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
-                                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
-                                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Games</th>
-                                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Starts</th>
-                                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Captain Points</th>
-                                  </tr>
-                              </thead>
-                              <tbody class="bg-white divide-y divide-gray-200">
-                  `;
-
-            data.playerStats.forEach((player, index) => {
-                html += `
-                    <tr
-                      class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-100 transition-colors duration-200">
-                        <td class="sticky-column px-6 py-4 text-sm font-medium text-gray-900 bg-white">
-                          ${player.name}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-500">${player.team}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500">${player.position}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500">${player.totalPointsActive}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500">${player.gwInSquad}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500">${player.starts}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500">${player.cappedPoints}</td>
-                    </tr>
-                `;
-            });
-
-            html += `
-                              </tbody>
-                          </table>
-                      </div>
-                  </div>
+                <div class="glass-effect rounded-3xl shadow-xl p-8 card-hover">
+                    <div class="flex flex-col md:flex-row items-center justify-between mb-8">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-4 md:mb-0"><i class="fas fa-users mr-2"></i>Squad Performance</h2>
+                        <div class="flex items-center gap-4">
+                            <span class="text-slate-600">Filter by position:</span>
+                            <select id="positionFilter" class="px-4 py-2 bg-white/50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                <option value="All">All</option>
+                                <option value="GKP">GKP</option>
+                                <option value="DEF">DEF</option>
+                                <option value="MID">MID</option>
+                                <option value="FWD">FWD</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto responsive-table">
+                        <table class="min-w-full bg-white/50 rounded-xl">
+                            <thead class="bg-slate-50/50">
+                                <tr>
+                                    <th class="sticky-column px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider bg-slate-50/50">Player Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Team</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Position</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Points</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Games</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Starts</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Captain Points</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                                ${data.playerStats.map((player, index) => `
+                                    <tr class="${index % 2 === 0 ? 'bg-white/50' : 'bg-slate-50/50'} hover:bg-blue-50/50 transition-colors duration-200">
+                                        <td class="sticky-column px-6 py-4 text-sm font-medium text-slate-900 bg-white/50">${player.name}</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">${player.team}</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">${player.position}</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">${player.totalPointsActive}</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">${player.gwInSquad}</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">${player.starts}</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">${player.cappedPoints}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             `;
 
             resultsDiv.innerHTML = html;
@@ -281,6 +343,80 @@
                     row.style.display = 'none';
                 }
             });
+        }
+
+        function getFDRColor(difficulty) {
+            const colors = {
+                1: '#22c55e',  // Green
+                2: '#84cc16',  // Light Green
+                3: '#cbd5e1',  // Gray
+                4: '#f97316',  // Orange
+                5: '#ef4444'   // Red
+            };
+            return `background-color: ${colors[difficulty] || '#cbd5e1'}`;
+        }
+
+        function populateFixtures(teamData) {
+            const fixturesBody = document.getElementById('fixturesBody');
+            fixturesBody.innerHTML = teamData.map(player => `
+                <tr class="border-t hover:bg-blue-50/50 transition-colors duration-200">
+                    <td class="sticky-column px-6 py-4 text-sm font-medium text-slate-900 bg-white/50">${player.name}</td>
+                    ${player.nextFixtures.map(fixture => `
+                        <td class="px-4 py-4">
+                            <div style="${getFDRColor(fixture.difficulty)}" class="text-sm rounded-lg p-2 text-center text-white font-medium shadow-sm">
+                                ${fixture.opponent} (${fixture.isHome ? 'H' : 'A'})
+                            </div>
+                        </td>
+                    `).join('')}
+                </tr>
+            `).join('');
+        }
+
+        function populatePositionSummary(positionData, playerStats) {
+            const summaryDiv = document.getElementById('positionSummary');
+            const positionColors = {
+                GKP: 'from-amber-400 to-amber-500',
+                DEF: 'from-blue-400 to-blue-500',
+                MID: 'from-emerald-400 to-emerald-500',
+                FWD: 'from-rose-400 to-rose-500'
+            };
+
+            // Find highest scoring player for each position
+            const highestScorers = {};
+            playerStats.forEach(player => {
+                if (!highestScorers[player.position] || 
+                    player.totalPointsActive > highestScorers[player.position].points) {
+                    highestScorers[player.position] = {
+                        name: player.name,
+                        points: player.totalPointsActive,
+                        photoId: player.photoId
+                    };
+                }
+            });
+
+            const gridContent = positionData.map(pos => `
+                <div class="bg-gradient-to-br ${positionColors[pos.position]} rounded-2xl p-6 text-white transform hover:scale-105 transition duration-300 shadow-lg relative overflow-hidden">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">${pos.position}</h3>
+                            <p class="text-3xl font-bold">${pos.totalPoints}</p>
+                            <p class="text-sm opacity-90">Total Points</p>
+                            <p class="text-sm mt-2">Top: ${highestScorers[pos.position]?.name}</p>
+                        </div>
+                        <div class="absolute right-0 top-1/2 transform -translate-y-1/2">
+                            <img 
+                                src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${highestScorers[pos.position]?.photoId}.png" 
+                                alt="${highestScorers[pos.position]?.name}"
+                                class="h-24 object-cover opacity-75 player-image"
+                                onerror="this.src='https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png'"
+                            />
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            summaryDiv.querySelector('.grid').innerHTML = gridContent;
+            summaryDiv.classList.remove('hidden');
         }
 
         function createCharts(weeklyPoints, weeklyRanks) {
@@ -308,7 +444,18 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true } }
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
                 }
             });
         }
@@ -333,14 +480,81 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { y: { reverse: true, beginAtZero: true } }
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { 
+                            reverse: true,
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
                 }
             });
         }
-  
+
+        function createLast3GWsChart(teamData) {
+            const ctx = document.getElementById('last3GWsChart').getContext('2d');
+            if (last3GWsChart) last3GWsChart.destroy();
+
+            // Sort players by last 3 GWs total points
+            const playerPoints = teamData.map(player => ({
+                name: player.name,
+                points: player.last3GWPoints || 0
+            })).sort((a, b) => b.points - a.points);
+
+            last3GWsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: playerPoints.map(p => p.name),
+                    datasets: [{
+                        label: 'Points',
+                        data: playerPoints.map(p => p.points),
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            display: true,
+                            color: '#374151',
+                            anchor: 'end',
+                            align: 'right',
+                            font: { weight: 'bold' }
+                        }
+                    },
+                    scales: {
+                        x: { 
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        y: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
         function shareApp() {
             const url = window.location.href;
-            navigator.share ? navigator.share({ url, text: "Check out this FPL Manager stats app!", title: "FPL Manager Stats" }) : alert("Sharing not supported on this device.");
+            navigator.share ? 
+                navigator.share({ 
+                    url, 
+                    text: "Check out this FPL Manager stats app!", 
+                    title: "FPL Manager Stats" 
+                }) : 
+                alert("Sharing not supported on this device.");
         }
     </script>
 </body>
