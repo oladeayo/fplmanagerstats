@@ -84,6 +84,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         .player-image {
             padding-right: 1.5rem;
         }
+        .scroll-container {
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 1rem;
+            -webkit-overflow-scrolling: touch;
+        }
+        .player-card {
+            display: inline-block;
+            margin-right: 1rem;
+            min-width: 300px;
+            vertical-align: top;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen custom-scrollbar">
@@ -177,6 +189,60 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
         </div>
 
+        <!-- Suspension Risk Card -->
+        <div id="suspensionRisk" class="max-w-7xl mx-auto mt-10 glass-effect rounded-3xl shadow-xl p-8 card-hover hidden">
+            <h2 class="text-2xl font-bold text-slate-800 mb-8">
+                <i class="fas fa-exclamation-triangle mr-2 text-yellow-500"></i>Suspension Risk & Banned Players
+            </h2>
+            <div class="space-y-8">
+                <!-- Suspended Players -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-red-600">
+                        <i class="fas fa-ban mr-2"></i>Suspended Players
+                    </h3>
+                    <div id="suspendedPlayers" class="scroll-container">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+                <!-- Players on 4 Yellow Cards -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-yellow-600">
+                        <i class="fas fa-card mr-2"></i>On 4 Yellow Cards
+                    </h3>
+                    <div id="yellowCardRisk" class="scroll-container">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transfer Trends Card -->
+        <div id="transferTrends" class="max-w-7xl mx-auto mt-10 glass-effect rounded-3xl shadow-xl p-8 card-hover hidden">
+            <h2 class="text-2xl font-bold text-slate-800 mb-8">
+                <i class="fas fa-exchange-alt mr-2 text-blue-500"></i>Transfer Trends
+            </h2>
+            <div class="space-y-8">
+                <!-- Most Transferred In -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-green-600">
+                        <i class="fas fa-arrow-right mr-2"></i>Most Transferred In
+                    </h3>
+                    <div id="mostTransferredIn" class="scroll-container">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+                <!-- Most Transferred Out -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-red-600">
+                        <i class="fas fa-arrow-left mr-2"></i>Most Transferred Out
+                    </h3>
+                    <div id="mostTransferredOut" class="scroll-container">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Share Button -->
         <div class="flex justify-center mt-16">
             <button onclick="shareApp()" 
@@ -199,6 +265,190 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         let pointsChart = null;
         let rankChart = null;
         let last3GWsChart = null;
+
+        // Load suspension data when page loads
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('/api/bootstrap-static');
+                if (!response.ok) throw new Error("Could not fetch bootstrap static data");
+                const data = await response.json();
+                
+                // Process suspension data
+                const suspendedPlayers = [];
+                const playersOn4Yellows = [];
+                const mostTransferredIn = [];
+                const mostTransferredOut = [];
+                
+                data.elements.forEach(player => {
+                    const team = data.teams.find(t => t.id === player.team);
+                    if (player.status === 'r' || player.status === 's') {
+                        suspendedPlayers.push({
+                            name: player.web_name,
+                            team: team.name,
+                            photoId: player.code,
+                            suspendedMatches: player.suspended_matches || 1,
+                            nextThreeFixtures: [] // You can add fixture data if needed
+                        });
+                    }
+                    if (player.yellow_cards === 4) {
+                        playersOn4Yellows.push({
+                            name: player.web_name,
+                            team: team.name,
+                            photoId: player.code,
+                            yellowCards: player.yellow_cards,
+                            nextThreeFixtures: [] // You can add fixture data if needed
+                        });
+                    }
+
+                    // Process transfers data
+                    mostTransferredIn.push({
+                        name: player.web_name,
+                        team: team.name,
+                        photoId: player.code,
+                        transfers: player.transfers_in_event
+                    });
+
+                    mostTransferredOut.push({
+                        name: player.web_name,
+                        team: team.name,
+                        photoId: player.code,
+                        transfers: player.transfers_out_event
+                    });
+                });
+
+                // Sort and slice transfers data
+                mostTransferredIn.sort((a, b) => b.transfers - a.transfers);
+                mostTransferredOut.sort((a, b) => b.transfers - a.transfers);
+                
+                const top10TransfersIn = mostTransferredIn.slice(0, 10);
+                const top10TransfersOut = mostTransferredOut.slice(0, 10);
+
+                // Show cards and populate data
+                document.getElementById('suspensionRisk').classList.remove('hidden');
+                document.getElementById('transferTrends').classList.remove('hidden');
+                populateSuspensionData({ suspendedPlayers, playersOn4Yellows });
+                populateTransferData({ mostTransferredIn: top10TransfersIn, mostTransferredOut: top10TransfersOut });
+            } catch (error) {
+                console.error("Error loading data:", error);
+            }
+        });
+
+        function populateTransferData(data) {
+            const transfersInDiv = document.getElementById('mostTransferredIn');
+            const transfersOutDiv = document.getElementById('mostTransferredOut');
+
+            // Helper function to create transfer card
+            const createTransferCard = (player, type) => `
+                <div class="player-card bg-white/50 rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <div class="flex items-center space-x-4">
+                        <img 
+                            src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.photoId}.png" 
+                            alt="${player.name}"
+                            class="w-16 h-20 object-cover rounded-lg"
+                            onerror="this.src='https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png'"
+                        >
+                        <div>
+                            <h4 class="font-semibold text-slate-800">${player.name}</h4>
+                            <p class="text-sm text-slate-600">${player.team}</p>
+                            <p class="text-sm ${type === 'in' ? 'text-green-600' : 'text-red-600'} font-medium mt-1">
+                                ${type === 'in' ? 'Transfers In' : 'Transfers Out'}: ${player.transfers.toLocaleString()}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Populate transfers in
+            transfersInDiv.innerHTML = data.mostTransferredIn.length ? 
+                data.mostTransferredIn.map(player => createTransferCard(player, 'in')).join('') :
+                '<p class="text-slate-600">No transfer data available</p>';
+
+            // Populate transfers out
+            transfersOutDiv.innerHTML = data.mostTransferredOut.length ?
+                data.mostTransferredOut.map(player => createTransferCard(player, 'out')).join('') :
+                '<p class="text-slate-600">No transfer data available</p>';
+        }
+
+        function populateSuspensionData(data) {
+            const suspendedPlayersDiv = document.getElementById('suspendedPlayers');
+            const yellowCardRiskDiv = document.getElementById('yellowCardRisk');
+
+            // Helper function to create player card
+            const createSuspendedPlayerCard = (player) => `
+                <div class="player-card bg-white/50 rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <div class="flex items-center space-x-4">
+                        <img 
+                            src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.photoId}.png" 
+                            alt="${player.name}"
+                            class="w-16 h-20 object-cover rounded-lg"
+                            onerror="this.src='https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png'"
+                        >
+                        <div>
+                            <h4 class="font-semibold text-slate-800">${player.name}</h4>
+                            <p class="text-sm text-slate-600">${player.team}</p>
+                            <p class="text-sm text-red-600 font-medium mt-1">Suspended for ${player.suspendedMatches} match${player.suspendedMatches > 1 ? 'es' : ''}</p>
+                            <div class="flex space-x-2 mt-2">
+                                ${player.nextThreeFixtures?.map(fixture => `
+                                    <div style="${getFDRColor(fixture.difficulty)}" 
+                                         class="text-xs rounded-md p-1 text-white">
+                                        ${fixture.opponent} (${fixture.isHome ? 'H' : 'A'})
+                                    </div>
+                                `).join('') || ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const createYellowCardPlayerCard = (player) => `
+                <div class="player-card bg-white/50 rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <div class="flex items-center space-x-4">
+                        <img 
+                            src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.photoId}.png" 
+                            alt="${player.name}"
+                            class="w-16 h-20 object-cover rounded-lg"
+                            onerror="this.src='https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png'"
+                        >
+                        <div>
+                            <h4 class="font-semibold text-slate-800">${player.name}</h4>
+                            <p class="text-sm text-slate-600">${player.team}</p>
+                            <p class="text-sm text-yellow-600 font-medium mt-1">
+                                <i class="fas fa-square text-yellow-400"></i> ${player.yellowCards} Yellow Cards
+                            </p>
+                            <div class="flex space-x-2 mt-2">
+                                ${player.nextThreeFixtures?.map(fixture => `
+                                    <div style="${getFDRColor(fixture.difficulty)}" 
+                                         class="text-xs rounded-md p-1 text-white">
+                                        ${fixture.opponent} (${fixture.isHome ? 'H' : 'A'})
+                                    </div>
+                                `).join('') || ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Populate suspended players
+            suspendedPlayersDiv.innerHTML = data.suspendedPlayers.length ? 
+                data.suspendedPlayers.map(createSuspendedPlayerCard).join('') :
+                '<p class="text-slate-600">No players currently suspended</p>';
+
+            // Populate players on 4 yellow cards
+            yellowCardRiskDiv.innerHTML = data.playersOn4Yellows.length ?
+                data.playersOn4Yellows.map(createYellowCardPlayerCard).join('') :
+                '<p class="text-slate-600">No players currently on 4 yellow cards</p>';
+        }
+
+        function getFDRColor(difficulty) {
+            const colors = {
+                1: '#22c55e',  // Green
+                2: '#84cc16',  // Light Green
+                3: '#cbd5e1',  // Gray
+                4: '#f97316',  // Orange
+                5: '#ef4444'   // Red
+            };
+            return `background-color: ${colors[difficulty] || '#cbd5e1'}`;
+        }
 
         async function analyzeManager() {
             const managerId = document.getElementById('managerId').value;
@@ -343,17 +593,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     row.style.display = 'none';
                 }
             });
-        }
-
-        function getFDRColor(difficulty) {
-            const colors = {
-                1: '#22c55e',  // Green
-                2: '#84cc16',  // Light Green
-                3: '#cbd5e1',  // Gray
-                4: '#f97316',  // Orange
-                5: '#ef4444'   // Red
-            };
-            return `background-color: ${colors[difficulty] || '#cbd5e1'}`;
         }
 
         function populateFixtures(teamData) {
