@@ -34,69 +34,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .sticky-column {
-            position: sticky;
-            left: 0;
-            z-index: 10;
-            background-color: white;
-        }
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-        @media (max-width: 640px) {
-            .responsive-table {
-                display: block;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-        }
-        .gradient-text {
-            background: linear-gradient(135deg, #3B82F6, #6366F1, #8B5CF6);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #94a3b8;
-            border-radius: 3px;
-        }
-        .player-image {
-            padding-right: 1.5rem;
-        }
-        .scroll-container {
-            overflow-x: auto;
-            white-space: nowrap;
-            padding: 1rem;
-            -webkit-overflow-scrolling: touch;
-        }
-        .player-card {
-            display: inline-block;
-            margin-right: 1rem;
-            min-width: 300px;
-            vertical-align: top;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen custom-scrollbar">
 <!-- Google Tag Manager (noscript) -->
@@ -122,10 +60,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- Input Section -->
         <div class="max-w-xl mx-auto mb-16">
             <div class="glass-effect rounded-3xl shadow-xl p-8 card-hover">
-                <input type="text" 
+                <input type="number" 
                        id="managerId" 
                        placeholder="Enter Manager ID" 
-                       class="w-full px-6 py-4 text-lg border-2 rounded-2xl border-blue-100 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400 transition duration-300 bg-white/50">
+                       class="w-full px-6 py-4 text-lg border-2 rounded-2xl border-blue-100 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400 transition duration-300 bg-white/50"
+                       onkeypress="if(event.key === 'Enter') analyzeManager()">
                 <button onclick="analyzeManager()" 
                         class="mt-6 w-full bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 hover:from-blue-600 hover:via-blue-700 hover:to-indigo-700 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl">
                     <i class="fas fa-search text-xl"></i> Analyze Stats
@@ -243,12 +182,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
         </div>
 
-        <!-- Share Button -->
+        <!-- Buy Me a Coffee Button -->
         <div class="flex justify-center mt-16">
-            <button onclick="shareApp()" 
-                    class="bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 hover:from-blue-600 hover:via-blue-700 hover:to-indigo-700 text-white font-bold py-4 px-10 rounded-2xl flex items-center gap-3 transition duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl">
-                <i class="fas fa-share-alt text-xl"></i> Share
-            </button>
+            <a href="https://www.buymeacoffee.com/oladeeayo" 
+               target="_blank"
+               class="bg-gradient-to-r from-yellow-500 via-yellow-600 to-yellow-700 hover:from-yellow-600 hover:via-yellow-700 hover:to-yellow-800 text-white font-bold py-4 px-10 rounded-2xl flex items-center gap-3 transition duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl">
+                <i class="fas fa-coffee text-xl"></i> Buy Me a Coffee
+            </a>
         </div>
 
         <!-- Footer Section -->
