@@ -1,0 +1,72 @@
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+.sticky-column {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background-color: white;
+}
+
+.glass-effect {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 640px) {
+    .responsive-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, #3B82F6, #6366F1, #8B5CF6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 3px;
+}
+
+.player-image {
+    padding-right: 1.5rem;
+}
+
+.scroll-container {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 1rem;
+    -webkit-overflow-scrolling: touch;
+}
+
+.player-card {
+    display: inline-block;
+    margin-right: 1rem;
+    min-width: 300px;
+    vertical-align: top;
+}
